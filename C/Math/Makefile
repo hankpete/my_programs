@@ -1,4 +1,1 @@
-CFLAGS=-lm -Wall -g
-
-clean:
-	rm -f ex1
+CFLAGS=-lm -Wall -g -lgmp

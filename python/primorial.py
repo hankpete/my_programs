@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # uses sieve method to make primes
 # multiplies them together to get primorial primes
 # check if prime
@@ -49,7 +51,7 @@ def main():
     print("Primes 'p' for which 'p# + 1' is prime:\n") 
     primes_list = sieve(1000)    
     for n in primes_list:
-        if n == 379:
+        if n:
             primes = sieve(n)
             primorial = gen_primorial(primes)
             check = is_prime(primorial)
