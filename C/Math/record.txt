@@ -1,0 +1,16 @@
+p = 2 ---> p# + 1 ---> prime!!
+p = 3 ---> p# + 1 ---> prime!!
+p = 5 ---> p# + 1 ---> prime!!
+p = 7 ---> p# + 1 ---> prime!!
+p = 11 ---> p# + 1 ---> prime!!
+p = 31 ---> p# + 1 ---> probably prime!
+p = 379 ---> p# + 1 ---> probably prime!
+p = 1019 ---> p# + 1 ---> probably prime!
+p = 1021 ---> p# + 1 ---> probably prime!
+p = 2657 ---> p# + 1 ---> probably prime!
+p = 3229 ---> p# + 1 ---> probably prime!
+p = 4547 ---> p# + 1 ---> probably prime!
+p = 4787 ---> p# + 1 ---> probably prime!
+p = 11549 ---> p# + 1 ---> probably prime!
+p = 13649 ---> p# + 1 ---> probably prime!
+p = 18523 ---> p# + 1 ---> probably prime!

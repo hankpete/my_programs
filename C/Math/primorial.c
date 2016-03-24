@@ -3,11 +3,10 @@
 #include <math.h>
 #include <gmp.h>
 
-int main(int argc, char *argv[])
-{	
+int check_primorial (int p) 
+{
     int *primes;
 	int *final_primes;
-	int p = atoi(argv[1]) + 1;	
 
 	// put it on the heap cuz it can get big
 	primes = malloc(sizeof(int)*p);
@@ -59,13 +58,67 @@ int main(int argc, char *argv[])
 	// check if it is prime
 	int check;
    	check = mpz_probab_prime_p (primorial, 10);
+	
+	free(primes);
+	free(final_primes);
 
-	if (check == 1) {
-		gmp_printf("p = %d ---> p# + 1 = %Zd ---> probably prime!\n", p, primorial);
-	} else if (check == 2) {
-		gmp_printf("p = %d ---> p# + 1 = %Zd ---> prime!!\n", p, primorial);
-	} else {
-		gmp_printf("%d ---> p# + 1 = %Zd ---> not prime :(\n", p, primorial);
+	return check;
+}
+
+
+int main(int argc, char *argv[])
+{	
+	
+    int *primes;
+	int *final_primes;
+	int range = 45000;
+
+	// put it on the heap cuz it can get big
+	primes = malloc(sizeof(int)*range);
+	final_primes = malloc(sizeof(int)*range);
+
+    int i, k;
+
+	// start primes as all 1s, final as array of 0s
+    for(i = 2; i<range; i++) {
+		primes[i] = 1;
+		final_primes[i] = 0;
+    }
+	
+
+	// go through the multiples, set composites to 0
+	for (i = 2; i<range; i++) {
+		if (primes[i]) {
+			for (k = i; k*i < range; k++) {
+				primes[k*i] = 0;
+			}
+		}
+	}
+
+	// now put the index vals of all the 1s in primes in a list
+	int j = 0;
+	for (i = 2; i < range; i++) {
+		if (primes[i]) {
+			final_primes[j] = i;
+			j++;
+		}
+	}
+	
+	int check;
+	for (i = 0; i < range; i++) {
+		if (final_primes[i] == 0) {
+			break;
+		} else {
+			check = check_primorial(final_primes[i] + 1 );	//run the function, make it inclusive
+			
+			if (check == 1) {
+				printf("p = %d ---> p# + 1 ---> probably prime!\n", final_primes[i]);
+			} else if (check == 2) {
+				printf("p = %d ---> p# + 1 ---> prime!!\n", final_primes[i]);
+			} else {
+				// do nothing... printf("%d ---> p# + 1 ---> not prime :(\n", final_primes[i]);
+			}
+		}
 	}
 	
 	return 0;
