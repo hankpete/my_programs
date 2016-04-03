@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <gmp.h>
+#include <signal.h>
+
+int END_NOW = 0;
 
 int check_primorial (int p) 
 {
@@ -65,9 +68,20 @@ int check_primorial (int p)
 	return check;
 }
 
+// for control-c not ruining file
+void sigintHandler(int sig_num)
+{
+	signal(SIGINT, sigintHandler);
+	printf("Termination Signal Recieved\n\nFindings Saved to 'primorial.txt'\n");
+	fflush(stdout);
+
+	END_NOW = 1;
+}
 
 int main(int argc, char *argv[])
 {	
+
+	printf("If you wish to stop the program, press control-c.\n");
 	
     int *primes;
 	int *final_primes;
@@ -104,19 +118,26 @@ int main(int argc, char *argv[])
 		}
 	}
 	
+
+	// handle control-c
+	signal(SIGINT, sigintHandler);
+
+	// make a file to put the output in, run loop
+	FILE *f = fopen("primorial.txt", "w");
+	
 	int check;
 	int count = 0;
 	for (i = 0; i < range; i++) {
-		if (final_primes[i] == 0) {
+		if (final_primes[i] == 0 || END_NOW == 1) {
 			break;
 		} else {
 			check = check_primorial(final_primes[i] + 1 );	//run the function, make it inclusive
 			
 			if (check == 1) {
-				printf("p = %d ---> p# + 1 ---> probably prime\n", final_primes[i]);
+				fprintf(f, "p = %d ---> p# + 1 ---> probably prime\n", final_primes[i]);
 				count = 0;
 			} else if (check == 2) {
-				printf("p = %d ---> p# + 1 ---> prime\n", final_primes[i]);
+				fprintf(f, "p = %d ---> p# + 1 ---> prime\n", final_primes[i]);
 				count = 0;
 			} else {
 				count++;
@@ -124,10 +145,11 @@ int main(int argc, char *argv[])
 		}
 		
 		if (count > 100) {
-			printf("[still going - currently on p = %d]\n", final_primes[i + 1]);
+			fprintf(f, "[still going - currently on p = %d]\n", final_primes[i + 1]);
 			count = 0;
 		}
 	}
 	
+	fclose(f);	
 	return 0;
 }
