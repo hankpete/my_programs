@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
 	}
 	
 	int check;
+	int count = 0;
 	for (i = 0; i < range; i++) {
 		if (final_primes[i] == 0) {
 			break;
@@ -112,12 +113,19 @@ int main(int argc, char *argv[])
 			check = check_primorial(final_primes[i] + 1 );	//run the function, make it inclusive
 			
 			if (check == 1) {
-				printf("p = %d ---> p# + 1 ---> probably prime!\n", final_primes[i]);
+				printf("p = %d ---> p# + 1 ---> probably prime\n", final_primes[i]);
+				count = 0;
 			} else if (check == 2) {
-				printf("p = %d ---> p# + 1 ---> prime!!\n", final_primes[i]);
+				printf("p = %d ---> p# + 1 ---> prime\n", final_primes[i]);
+				count = 0;
 			} else {
-				// do nothing... printf("%d ---> p# + 1 ---> not prime :(\n", final_primes[i]);
+				count++;
 			}
+		}
+		
+		if (count > 100) {
+			printf("[still going - currently on p = %d]\n", final_primes[i + 1]);
+			count = 0;
 		}
 	}
 	

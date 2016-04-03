@@ -1,19 +1,22 @@
 #include <stdio.h>
 #include <math.h>
 
+// recursion!!!
+int factorial(int n) {
+	if (n == 1) {
+		return 1;
+	} else {
+		return n*factorial(n-1);
+	}
+}
+
 int main() {
 
-	double e = 2.0;
-	int n = 2;
-
-	int factorial = 1;
+	double e = 1; 
 	int i = 0;
-	for (n = 2; n < 20; n++) {
-		for (i = 2; i <= n; i++) {
-			factorial *= i;
-		}
-		e += 1.0 / factorial;
-		factorial = 1;
+
+	for (i = 1; i < 10; i++) {
+		e += 1.0 / factorial(i);
 	}
 
 	printf("e = %lf\n", e);
