@@ -5,9 +5,12 @@
 int main() 
 {
 	srand(time(NULL));
-	int r = rand();
-
-	printf("%d\n", r);
+	int i;
+	int r;
+	for (i = 0; i < 10; i++) {
+		r = rand() % 5;
+		printf("%d\n", r);
+	}
 
 	return 0;
 }
