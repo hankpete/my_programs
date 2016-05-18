@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 Test</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<link rel="stylesheet" href="drawing_divs.css">
+	</head>
+	<body>
+		<script type="text/javascript">
+
+			//generate some random data
+			var dataset = [];
+			for (var i = 0; i < 25; i++) {
+				var newNumber = Math.random() * 50; //random number btwn 0 and 50
+				newNumber = Math.round(newNumber)	//whole numbers
+				dataset.push(newNumber);
+			}
+
+			d3.select("body").selectAll("div")
+					.data(dataset)
+					.enter()
+					.append("div")
+					.attr("class", "bar")
+					.style("height", function(d) {
+							var barHeight = d * 5 //scale up
+							return barHeight + "px";
+					});
+
+		</script>
+	</body>
+<html>
