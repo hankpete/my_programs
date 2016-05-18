@@ -80,7 +80,8 @@
 								return rScale(d[1]);
 					})
 					.attr("fill", function(d) {
-								return "rgb(" + d[0] + "," + d[1] + ",0)";
+								return "rgb(" + Math.round(d[0]/xRange*255)
+								 + "," + Math.round(d[1]/yRange*255) + ",100)";
 					});
 
 			//

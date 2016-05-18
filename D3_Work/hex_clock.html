@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 Test</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+		<style type="text/css">
+			svg {
+				display: block;
+				margin: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<svg>
+			<text></text>
+		</svg>
+    <script type="text/javascript">
+			function update() {
+				var w = 300;
+				var h = 600;
+				var date = new Date();
+				var hours = date.getHours();
+				var mins = date.getMinutes();
+				var secs = date.getSeconds();
+				if (secs < 10) {
+					secs = "0"+secs;
+				}
+				var string = "#";
+				string += hours;
+				string += mins;
+				string += secs;
+
+				d3.select("body")
+						.style("background-color", string);
+
+				var svg = d3.select("body").select("svg")
+										.attr("width", w)
+										.attr("height", h);
+
+				svg.select("text")
+						.text(hours + ":" + mins + ":" + secs)
+						.attr("x", w/2)
+						.attr("y", h/2)
+						.attr("font-family", "arial")
+						.attr("font-size", "50")
+						.attr("fill", "white")
+						.attr("text-anchor", "middle");
+			}
+			update();
+			setInterval(function() {update();}, 1000);
+
+    </script>
+  </body>
+</html>
