@@ -12,13 +12,17 @@
 		</style>
 	</head>
 	<body>
-		<svg>
-			<text></text>
-		</svg>
     <script type="text/javascript">
+			//set up svg first
+			var w = 300,
+					h = 600;
+			var svg = d3.select("body").append("svg")
+									.attr("width", w)
+									.attr("height", h)
+			svg.append("text");
+
 			function update() {
-				var w = 300;
-				var h = 600;
+				//get time
 				var date = new Date();
 				var hours = date.getHours();
 				var mins = date.getMinutes();
@@ -26,18 +30,19 @@
 				if (secs < 10) {
 					secs = "0"+secs;
 				}
+				if (mins < 10) {
+					mins = "0"+mins;
+				}
 				var string = "#";
 				string += hours;
 				string += mins;
 				string += secs;
 
+				//update body
 				d3.select("body")
 						.style("background-color", string);
 
-				var svg = d3.select("body").select("svg")
-										.attr("width", w)
-										.attr("height", h);
-
+				//update text
 				svg.select("text")
 						.text(hours + ":" + mins + ":" + secs)
 						.attr("x", w/2)
@@ -48,7 +53,9 @@
 						.attr("text-anchor", "middle");
 			}
 			update();
-			setInterval(function() {update();}, 1000);
+			setInterval(function() {
+						update();
+					}, 1000);
 
     </script>
   </body>
