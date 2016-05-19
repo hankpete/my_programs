@@ -43,7 +43,7 @@
 
 				//update body
 				d3.select("body")
-						.transition()
+						.transition().duration(1000).ease("linear")
 						.style("background-color", string);
 
 				//update text
