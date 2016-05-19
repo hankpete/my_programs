@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>D3 Test</title>
+		<script type="text/javascript" src="d3/d3.js"></script>
+	</head>
+	<body>
+    <script type="text/javascript">
+			//setup
+			var svg = d3.select("body")
+									.append("svg")
+									.attr("height", 300)
+									.attr("width", 300);
+
+			var mySquare = svg.append("rect")
+												.attr("x", 100)
+												.attr("y", 100)
+												.attr("width", 20)
+												.attr("height", 20)
+												.attr("fill", "gray");
+
+			//transitions here
+			mySquare.transition()
+							.attr("x", 150)
+							.duration(1000);  //one sec long
+
+			mySquare.transition()
+							.attr("width", 100)
+							.attr("height", 100)
+							.ease("elastic")		//type of transition
+							.duration(1000)
+							.delay(2000);		//wait 2 secs
+
+			mySquare.transition()
+							.delay(4000)
+							.attr("x",200)		//do a transition
+							.each("end",function() {		//once it is done...
+									d3.select(this) // 'this' is the object
+										.transition() // a new transition!
+										.attr("y",180)
+										.each("end",function() {		//once this one is done... etc
+												d3.select(this)
+													.remove();		//bye bye
+												});
+									});
+    </script>
+  </body>
+</html>
