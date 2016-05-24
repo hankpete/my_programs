@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>D3 Test</title>
+	<script src="d3/d3.js" charset="utf-8"></script>
+	<script src="neighborhoods.js"></script>
+</head>
+<body>
+	<script>
+		var width = 700,
+			height = 580;
+
+		var svg = d3.select("body").append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		var neighborhoods = svg.append("g");
+
+		var albersProjection = d3.geo.albers()	//type of map proj
+			.scale(190000)	//zoom stuff. fiddle as needed
+			.rotate([71.057, 0])	//use to get map in right spot
+			.center([0, 42.313])	//same
+			.translate([width/2, height/2]);	//pixel offset to center proj in svg
+
+		//this is a function:
+		var geoPath = d3.geo.path()	//takes geojson feature and returns svg path data
+			.projection(albersProjection);
+
+		neighborhoods.selectAll("path")
+			.data(neighborhoods_json.features)
+			.enter()
+			.append("path")		//svg path is just freeform shape
+			.attr("fill", "#ccc")
+			.attr("d", geoPath);	//d = coordinates of a path
+									//use path function (like when we do a function on d normally)
+
+	</script>
+</body>
+</html>

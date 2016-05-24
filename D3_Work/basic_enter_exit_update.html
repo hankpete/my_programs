@@ -31,7 +31,7 @@
 
 			//how to handle enter update and exit
 			//join 'circles' to newdataset
-			circles = svg.selectAll("circle")
+			var circles = svg.selectAll("circle")
 										.data(dataset);
 			//if the old circles (none) are more than number of data points,
 			//delete extras (in this case nothing happens)
