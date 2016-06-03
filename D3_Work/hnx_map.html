@@ -4,7 +4,7 @@
 	<meta charset="utf-8">
 	<title>D3 Test</title>
 	<script src="d3/d3.js"></script>
-	<script src="//d3js.org/topojson.v1.min.js"></script>
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
 	<!-- <script src="hnxSaZones.json"></script> -->
 	<style>
 		* {
@@ -65,7 +65,7 @@
 			centered;	//for clicked func later. see if already zoomed
 
 		var projectionFunc = d3.geo.mercator()	//world
-			.scale(8000)
+			.scale(5000)
 			.center([-119.6, 36.3])	//hnx coords
 			.translate([width/2, height/2]);
 
@@ -81,7 +81,7 @@
 		var svg = d3.select("body").append("svg")
 			.attr("width", width)
 			.attr("height", height)
-			.call(zoom);
+			// .call(zoom);
 
 		svg.append("rect")
 			.attr("class", "background")
@@ -101,9 +101,9 @@
 				.data(zones)
 			  .enter().append("path")
 				.attr("d", pathFunc)
-				//.on("click", clicked)	//functions below
-				//.on("mouseover", handleMouseOver)
-				//.on("mouseout", handleMouseOut);
+				.on("click", clicked)	//functions below
+				.on("mouseover", handleMouseOver)
+				.on("mouseout", handleMouseOut);
 
 			//make borders separately so they dont slow it down
 			g.append("path")
@@ -124,7 +124,7 @@
 					return projectionFunc([d.properties.LON, d.properties.LAT])[1];
 				})
 				.text(function(d) {
-					return d.id;
+					return d.properties.ZONE;
 				});
 		});
 
