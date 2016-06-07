@@ -1,4 +1,4 @@
-CFLAGS=-lm -Wall -g -lgmp
+CFLAGS=-Wall -g 
 
 make:
 	make gen_pass
