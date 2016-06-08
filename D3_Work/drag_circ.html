@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>D3 Work</title>
+    <meta charset="utf-8">
+    <script src="d3/d3.min.js"></script>
+    <style type="text/css">
+        * {
+            pointer-events: all;
+        }
+        svg .circle {
+            fill: white;
+            stroke: green;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body>
+<script>
+    var w = window.outerWidth;
+    var h = window.outerHeight;
+
+    var svg = d3.select("body")
+        .append("svg")
+        .attr("width", w)
+        .attr("height", h);
+
+    var g = svg.append("g");
+
+    var drag = d3.behavior.drag();
+
+    g.append("circle")
+        .attr("class", "circle")
+        .attr("cx", w/5)
+        .attr("cy", h/5)
+        .attr("r", 10)
+        .attr("stroke-width", 3)
+        .call(drag);
+
+    drag.on("drag", clickFunc);
+
+    function clickFunc() {
+        var mouseCoords = d3.mouse(this);
+        d3.select("circle")
+            .attr("cx", mouseCoords[0])
+            .attr("cy", mouseCoords[1]);
+    }
+
+
+</script>
+</body>
+</html>
