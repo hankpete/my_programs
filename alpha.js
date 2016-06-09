@@ -1,7 +1,14 @@
-var alpha = "abcdefghijklmnopqrstuvwxyz";
+var alphabet = "abcdefghijklmnopqrstuvwxyz";
 var names = ["Henry Peterson", "Carol Rosenfield", "Jim Sullivan"];
 
-names = alphabetize(names);
+//names = alphabetize(names);
+
+names = ["amy kat", "berry jam", "dan ricky", "joe leaf", "joel kardi", "rik kart", "steve pete", "steve pratt", "zarg hat"];
+names = put_in_alpha(names, "cara pete");
+names = put_in_alpha(names, "joeseph tail");
+names = put_in_alpha(names, "dan ricker");
+names = put_in_alpha(names, "be me");
+names = put_in_alpha(names, "amy katherine");
 
 d3.select("body").selectAll("p")
     .data(names)
@@ -25,19 +32,39 @@ function put_in_alpha(list, new_word) {
   }
   
   for (var i = 0; i < list.length; i++) {
+
     for (var j = 0; j < list[i].length; j++) {
-      if (list[i][j] === " " || new_word[j] === " ") {
+    
+      if (list[i][j] == " " && new_word[j] == " ") { //same first name
+        alert("hi");
         continue;
+      } else if (list[i][j] == " " && new_word[j] != " ") { //same but new longer
+        alpha_list.push(new_word);
+        for (var k = i; k < list.length; k++) {
+          alpha_list.push(list[k]);
+        }
+        return alpha_list;
+      } else if (list[i][j] != " " && new_word[j] == " ") { //same but old longer
+        alert("hi");
+        alpha_list.push(new_word);
+        for (var k = i; k < list.length; k++) {
+          alpha_list.push(list[k]);
+        }
+        return alpha_list;
       }
-      if (numberize(list[i][j]) < numberize(new_word[j])) {
-          alpha_list.push(new_word);
-          for (var k = j; k < list.length; k++) {
-            alpha_list.push(list[k]);
-          }
-          return alpha_list;
+
+      if (alphabet.indexOf(new_word[j]) < alphabet.indexOf(list[i][j])) {
+        alpha_list.push(new_word);
+        for (var k = i; k < list.length; k++) {
+          alpha_list.push(list[k]);
+        }
+        return alpha_list;
       } else if (j + 1 > list[i].length) {
         alpha_list.push(list[i]);
-      } 
+      } else {
+        alpha_list.push(list[i]);
+        break;
+      }
     }
   }  
 }
@@ -49,3 +76,4 @@ function alphabetize(list) {
   }
   return final_alpha;
 }
+
