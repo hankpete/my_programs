@@ -5,8 +5,10 @@
 	<title>Image Cycler</title>
 	<script src="https://d3js.org/d3.v3.min.js"></script>
 	<style>
-		.p {
-			text-align: center;
+		img {
+			display: block;
+    			margin-left: auto;
+    			margin-right: auto;
 		}
 	</style>
 			
@@ -23,7 +25,7 @@
 		
 		var image = [image_locations[num % image_locations.length]];
 		
-		var img = d3.select("body").select("p").selectAll("img")
+		var img = d3.select("body").selectAll("img")
 			.data(image);
 	    	    
 		img
