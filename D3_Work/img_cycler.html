@@ -19,6 +19,7 @@
 	d3.select("body").selectAll("img")
 		.data(image_locations)
 	    .enter()
+		.append("img")
 		.attr("src", function(d) {return d;});
 
 </script>
