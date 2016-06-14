@@ -15,12 +15,34 @@
 	var image_locations = ["https://upload.wikimedia.org/wikipedia/en/c/cd/The-catalyst-single-cover-500x500.png",
 		"http://2.bp.blogspot.com/-CmBgofK7QzU/TVj3u3N1h2I/AAAAAAAADN8/OszBhGvvXRU/s640/tumblr_lg7h9gpbtP1qap9qio1_500.jpeg",
 		"https://farm9.staticflickr.com/8644/16517781789_6ed90c5678.jpg"];
+	var dt = 1000;
 
-	d3.select("body").selectAll("img")
-		.data(image_locations)
-	    .enter()
-		.append("img")
-		.attr("src", function(d) {return d;});
+	function update(num) {
+		
+		var image = [image_locations[num % image_locations.length]];
+		
+		var img = d3.select("body").selectAll("img")
+			.data(image);
+	    	    
+		img
+		    .enter()
+			.append("img")
+			.attr("src", function(d) {return d;});
+		
+		img
+		    //.transition()
+			//.duration(dt)
+			.attr("src", function(d) {return d;});
+	}
+
+	var count = 0;
+	
+	update(count);
+	
+	setInterval(function() {
+		count++;
+		update(count);
+		}, dt);
 
 </script>
 </body>
