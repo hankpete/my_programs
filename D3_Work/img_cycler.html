@@ -2,37 +2,52 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Pics Cycler</title>
+	<title>Image Cycler</title>
 	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<style>
+		.p {
+			text-align: center;
+		}
+	</style>
+			
 </head>
 <body>
-	<!--
-	<img src="https://upload.wikimedia.org/wikipedia/en/c/cd/The-catalyst-single-cover-500x500.png">
-	<img src="http://2.bp.blogspot.com/-CmBgofK7QzU/TVj3u3N1h2I/AAAAAAAADN8/OszBhGvvXRU/s640/tumblr_lg7h9gpbtP1qap9qio1_500.jpeg">
-	<img src="https://farm9.staticflickr.com/8644/16517781789_6ed90c5678.jpg">
-	-->
+	<p></p>
 <script>
 	var image_locations = ["https://upload.wikimedia.org/wikipedia/en/c/cd/The-catalyst-single-cover-500x500.png",
 		"http://2.bp.blogspot.com/-CmBgofK7QzU/TVj3u3N1h2I/AAAAAAAADN8/OszBhGvvXRU/s640/tumblr_lg7h9gpbtP1qap9qio1_500.jpeg",
 		"https://farm9.staticflickr.com/8644/16517781789_6ed90c5678.jpg"];
-	var dt = 1000;
+	var dt = 5000;
 
 	function update(num) {
 		
 		var image = [image_locations[num % image_locations.length]];
 		
-		var img = d3.select("body").selectAll("img")
+		var img = d3.select("body").select("p").selectAll("img")
 			.data(image);
 	    	    
 		img
 		    .enter()
 			.append("img")
-			.attr("src", function(d) {return d;});
+			.attr("src", function(d) {return d;})
+			.style("opacity", 0)
+		    .transition()
+			.duration(dt/2)
+			.style("opacity", 1)
+		    .transition()
+			.delay(dt/2)
+			.duration(dt/2)
+			.style("opacity", 0);
 		
 		img
-		    //.transition()
-			//.duration(dt)
-			.attr("src", function(d) {return d;});
+			.attr("src", function(d) {return d;})
+		    .transition()
+			.duration(dt/2)
+			.style("opacity", 1)
+		    .transition()
+			.delay(dt/2)
+			.duration(dt/2)
+			.style("opacity", 0);
 	}
 
 	var count = 0;
