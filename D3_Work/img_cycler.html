@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Pics Cycler</title>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+	<!--
+	<img src="https://upload.wikimedia.org/wikipedia/en/c/cd/The-catalyst-single-cover-500x500.png">
+	<img src="http://2.bp.blogspot.com/-CmBgofK7QzU/TVj3u3N1h2I/AAAAAAAADN8/OszBhGvvXRU/s640/tumblr_lg7h9gpbtP1qap9qio1_500.jpeg">
+	<img src="https://farm9.staticflickr.com/8644/16517781789_6ed90c5678.jpg">
+	-->
+<script>
+	var image_locations = ["https://upload.wikimedia.org/wikipedia/en/c/cd/The-catalyst-single-cover-500x500.png",
+		"http://2.bp.blogspot.com/-CmBgofK7QzU/TVj3u3N1h2I/AAAAAAAADN8/OszBhGvvXRU/s640/tumblr_lg7h9gpbtP1qap9qio1_500.jpeg",
+		"https://farm9.staticflickr.com/8644/16517781789_6ed90c5678.jpg"];
+
+	d3.select("body").selectAll("img")
+		.data(image_locations)
+	    .enter()
+		.attr("src", function(d) {return d;});
+
+</script>
+</body>
+</html>
