@@ -81,7 +81,7 @@
 		var svg = d3.select("body").append("svg")
 			.attr("width", width)
 			.attr("height", height)
-			// .call(zoom);
+			.call(zoom);
 
 		svg.append("rect")
 			.attr("class", "background")
@@ -101,9 +101,9 @@
 				.data(zones)
 			  .enter().append("path")
 				.attr("d", pathFunc)
-				.on("click", clicked)	//functions below
-				.on("mouseover", handleMouseOver)
-				.on("mouseout", handleMouseOut);
+				// .on("click", clicked)	//functions below
+				// .on("mouseover", handleMouseOver)
+				// .on("mouseout", handleMouseOut);
 
 			//make borders separately so they dont slow it down
 			g.append("path")
