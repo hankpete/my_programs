@@ -101,9 +101,9 @@
 				.data(zones)
 			  .enter().append("path")
 				.attr("d", pathFunc)
-				// .on("click", clicked)	//functions below
-				// .on("mouseover", handleMouseOver)
-				// .on("mouseout", handleMouseOut);
+				.on("click", clicked)	//functions below
+				.on("mouseover", handleMouseOver)
+				.on("mouseout", handleMouseOut);
 
 			//make borders separately so they dont slow it down
 			g.append("path")

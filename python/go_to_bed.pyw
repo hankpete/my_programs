@@ -50,7 +50,7 @@ w = tk.Label(master, text="Go to bed, Sarlen!",
 w.pack()
 
 # debug
-tk.mainloop()
+# tk.mainloop()
 
 # run main loop always
 while True:
