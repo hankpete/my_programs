@@ -50,12 +50,18 @@ w = tk.Label(master, text="Go to bed, Sarlen!",
 w.pack()
 
 # debug
-# tk.mainloop()
+#tk.mainloop()
 
 # run main loop always
 while True:
     d = datetime.now()
-    if d.hour in range(7):      # between midnight and 6 am
+    if d.hour in (23, 0, 1, 2, 3, 4, 5, 6):      # between midnight and 6 am
         os.system("shutdown /s /t 30")      # full shutdown in 30 secs
+        
+        #debug 
+        #os.system("echo goodbye")
+
         tk.mainloop()   #show window
+
     sleep(60)   # wait 60 secs before checking again (save cpu)
+

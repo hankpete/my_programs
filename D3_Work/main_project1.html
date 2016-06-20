@@ -3,9 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>D3 Test</title>
-	<script src="d3/d3.js"></script>
+	<script src="d3/d3.min.js"></script>
 	<script src="https://d3js.org/topojson.v1.min.js"></script>
-	<!-- <script src="hnxSaZones.json"></script> -->
 	<style>
 		* {
 			margin: 0;
@@ -125,13 +124,13 @@
 				});
 		});
 
-		var dataUrl = "http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
+		var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
 		d3.json(dataUrl, function(error, data) {
-			if (error) { console.log("There was an error loading the data." + error) }
+			if (error) { console.log("There was an error loading the data." + error); }
 
-			var stations = topojson.feature(data, data.objects.stations).features
-			d3.selectAll("circle")
-					.data(stations)
+			//var stations = topojson.feature(data, data.stations).features;
+			g.selectAll("circle")
+					.data(data.stations)
 				.enter()
 					.append("circle")
 					.attr("cx", function(d) {
@@ -141,7 +140,7 @@
 						return projectionFunc([d.longitude, d.latitude])[1]
 					})
 					.attr("r", function(d) {
-						return d.elev * .1
+						return d.elev * .001;
 					})
 					.attr("fill", "#fff")
 					.attr("stroke", "#f00");
