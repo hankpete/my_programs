@@ -124,27 +124,90 @@
 				});
 		});
 
+
+		//check to see what data categories were selected
+		var categories = ["elev", "Temp", "TempC", "Dewp", "Relh",
+			"Winds", "SLP", "Altimeter", "Visibility", "TempHi24",
+			"TempLo24", "RelhHi24", "RelhLo24", "GustHi24",
+			"RawsTemp12", "RawsTemp13", "RawsTemp14", "RawsRelh12",
+			"RawsRelh13", "RawsRelh14"]
 		var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
 		d3.json(dataUrl, function(error, data) {
 			if (error) { console.log("There was an error loading the data." + error); }
 
-			//var stations = topojson.feature(data, data.stations).features;
-			g.selectAll("circle")
-					.data(data.stations)
+			// for(var i = 0; i < categories.length; i++) {
+			// 	initialize(data.stations, categories[i]);
+			// }
+
+			var i = 0;
+			cycle(i, data);
+			setInterval(function() {
+						cycle(i, data);
+						i++;
+					}, 2*dt);
+		});
+
+		function initialize(dataFull, name) {
+			//make a scale
+			var colorScale = d3.scale.linear()
+				.domain([d3.min(dataFull, function(d) {
+					return +( eval("d." + name) );
+					}), d3.max(dataFull, function(d) {
+						return +( eval("d." + name) );
+				 	})]) //+ makes it an int, eval makes string a var
+				.range([0, 255]);
+			//add data vis with class 'name' and opacity 0
+			g.selectAll("circle." + name)
+					.data(dataFull)
 				.enter()
 					.append("circle")
+					.attr("class", function(d) {
+						if (eval("d." + name)) {
+							return name;
+						} else {
+							return "undefined";
+						}
+					});
+
+			g.selectAll("circle.undefined")
+					.remove();
+
+			g.selectAll("circle." + name)
 					.attr("cx", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[0]
 					})
 					.attr("cy", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[1]
 					})
-					.attr("r", function(d) {
-						return d.elev * .001;
+					.attr("r", 6)
+					.attr("fill", function(d) {
+						var num = Math.round(colorScale(eval("d." + name)));
+						return "rgb(" + num + ", 0, 0)";
 					})
-					.attr("fill", "#fff")
-					.attr("stroke", "#f00");
-		});
+					.style("opacity", 0);
+		}
+
+		var dt = 5000;
+		function cycle(index, dataFull) {
+			//pick next data category
+			var category = categories[index % categories.length];
+
+			initialize(dataFull, category);
+
+			//change its opacity in a transition to 1 then back to 0
+			g.selectAll("circle." + category)
+				.transition()
+					.duration(dt)
+					.style("opacity", 1)
+				.transition()
+					.delay(dt)
+					.duration(dt)
+					.style("opacity", 0)
+					.remove();
+
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 		//this function is for zooming on click
 		function clicked(d) {
