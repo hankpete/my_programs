@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>D3 Test</title>
-	<script src="d3/d3.min.js"></script>
+	<script src="d3/d3.js"></script>
 	<script src="https://d3js.org/topojson.v1.min.js"></script>
 	<style>
 		* {
@@ -138,6 +138,8 @@
 
 			data = data.stations;
 
+			makeLegend();
+
 			var i = 0;
 			cycle(i, data);
 			setInterval(function() {
@@ -146,23 +148,42 @@
 					}, 2*dt + delay);
 		});
 
+		function makeLegend() {
+			var numRects = 100;
+			var rectsData = [];
+			for (var i = 0; i < numRects; i++) {
+				rectsData.push(i);
+			}
+			var textHeight = height/15;
+			var categoryTextWidth = width/4;
+			var colorScale = d3.scale.linear()
+					.domain([0, numRects - 1])
+					.range([0, 255]);
+
+			g.selectAll("rect.heatmap")
+					.data(rectsData);
+				.enter()
+					.append("rect")
+					.attr("id", "changing")
+					.attr("x", function(d, i) {
+						return 2.2*categoryTextWidth + i*(.75*categoryTextWidth/numRects);
+					})
+					.attr("y", textHeight/2)
+					.attr("width", categoryTextWidth/numRects)
+					.attr("height", textHeight/2)
+					.attr("fill", function(d) {
+						var num = Math.round(colorScale(d));
+						return "rgb(" + num + ", 0, " + (255 - num) + ")";
+					})
+					.style("opacity", 0);
+		}
 		function cycle(index, dataFull) {
 			//pick next data category
 			var category = categories[index % categories.length];
 
 			initialize(dataFull, category);
 
-			g.selectAll("text.category-text")
-				.transition()
-					.duration(dt)
-					.style("opacity", 1)
-				.transition()
-					.delay(delay)
-					.duration(dt)
-					.style("opacity", 0);
-
-			//change its opacity in a transition to 1 then back to 0
-			g.selectAll("circle." + category)
+			g.selectAll("#changing")
 				.transition()
 					.duration(dt)
 					.style("opacity", 1)
@@ -173,24 +194,29 @@
 		}
 
 		function initialize(dataFull, name) {
-			//make a scale
-			var colorScale = d3.scale.linear()
-				.domain([d3.min(dataFull, function(d) {
-					return +( eval("d." + name) );
-					}), d3.max(dataFull, function(d) {
-						return +( eval("d." + name) );
-				 	})]) //+ makes it an int, eval makes string a var
-				.range([0, 255]);
+			//make scale
+			var min = d3.min(dataFull, function(d) {
+				return +( eval("d." + name) ); //+ makes it an int, eval makes string a var
+			});
+			var max = d3.max(dataFull, function(d) {
+				return +( eval("d." + name) );
+			});
 
-			var radiusScale =	d3.scale.linear()
-							.domain([d3.min(dataFull, function(d) {
-								return +( eval("d." + name) );
-								}), d3.max(dataFull, function(d) {
-									return +( eval("d." + name) );
-							 	})]) //+ makes it an int, eval makes string a var
-							.range([2, 10]);
+			var colorScale = d3.scale.linear()
+					.domain([min, max])
+					.range([0, 255]);
+
+			// var radiusScale =	d3.scale.linear()
+			// 				.domain([d3.min(dataFull, function(d) {
+			// 					return +( eval("d." + name) );
+			// 					}), d3.max(dataFull, function(d) {
+			// 						return +( eval("d." + name) );
+			// 				 	})]) //+ makes it an int, eval makes string a var
+			// 				.range([2, 10]);
 
 			//display name of category
+			var textHeight = height/15;
+			var categoryTextWidth = width/4;
 			var text = g.selectAll("text.category-text")
 					.data([0]);
 
@@ -198,13 +224,79 @@
 				.enter()
 					.append("text")
 					.attr("class", "category-text")
-					.attr("x", width/2)
-					.attr("y", height/10)
+					.attr("id", "changing")
+					.attr("x", categoryTextWidth)
+					.attr("y", textHeight)
 					.text(name)
 					.style("opacity", 0);
 
 			text
-					.text(name)
+					.text(name);
+
+			//show a legend for the color map
+			var minText = g.selectAll("text.min-text")
+					.data([0]);
+
+			minText
+				.enter()
+					.append("text")
+					.attr("class", "min-text")
+					.attr("id", "changing")
+					.attr("x", 2*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(min)
+					.style("opacity", 0);
+
+			minText
+				.text(min);
+
+			var maxText = g.selectAll("text.max-text")
+					.data([0]);
+
+			maxText
+				.enter()
+					.append("text")
+					.attr("class", "max-text")
+					.attr("id", "changing")
+					.attr("x", 3*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(max)
+					.style("opacity", 0);
+
+			maxText
+				.text(max);
+
+			// var numRects = 100;
+			// var rectsData = [];
+			// var spacing = (max - min)/numRects;
+			// for (var i = 0; i < numRects; i++) {
+			// 	rectsData.push(min + spacing*i);
+			// }
+			// rects = g.selectAll("rect.heatmap")
+			// 		.data(rectsData);
+			//
+			// rects
+			// 	.enter()
+			// 		.append("rect")
+			// 		.attr("class", name)
+			// 		.attr("id", "changing")
+			// 		.attr("x", function(d, i) {
+			// 			return 2.2*categoryTextWidth + i*(.75*categoryTextWidth/numRects);
+			// 		})
+			// 		.attr("y", textHeight/2)
+			// 		.attr("width", categoryTextWidth/numRects)
+			// 		.attr("height", textHeight/2)
+			// 		.attr("fill", function(d) {
+			// 			var num = Math.round(colorScale(d));
+			// 			return "rgb(" + num + ", 0, " + (255 - num) + ")";
+			// 		})
+			// 		.style("opacity", 0)
+			//
+			// rects
+			// 		.attr("fill", function(d) {
+			// 			var num = Math.round(colorScale(d));
+			// 			return "rgb(" + num + ", 0, " + (255 - num) + ")";
+			// 		})
 
 			//add data vis with class 'name' and opacity 0
 			var circs = g.selectAll("circle." + name)
@@ -220,18 +312,20 @@
 							return "undefined";
 						}
 					})
+					.attr("id", "changing")
 					.attr("cx", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[0]
 					})
 					.attr("cy", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[1]
 					})
-					.attr("r", function(d) {
-						return radiusScale(eval("d." + name));
-					})
+					// .attr("r", function(d) {
+					// 	return radiusScale(eval("d." + name));
+					// })
+					.attr("r", 7)
 					.attr("fill", function(d) {
 						var num = Math.round(colorScale(eval("d." + name)));
-						return "rgb(" + num + ", 50, 50)";
+						return "rgb(" + num + ", 0, " + (255 - num)+ ")";
 					})
 					.style("opacity", 0);
 
@@ -249,12 +343,12 @@
 					.attr("cy", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[1]
 					})
-					.attr("r", function(d) {
-						return radiusScale(eval("d." + name));
-					})
+					// .attr("r", function(d) {
+					// 	return radiusScale(eval("d." + name));
+					// })
 					.attr("fill", function(d) {
 						var num = Math.round(colorScale(eval("d." + name)));
-						return "rgb(" + num + ", 50, 50)";
+						return "rgb(" + num + ", 0, " + (255 - num)+ ")";
 					})
 					.style("opacity", 0);
 
