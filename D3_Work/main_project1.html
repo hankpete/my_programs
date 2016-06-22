@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title>D3 Test</title>
-	<script src="d3/d3.js"></script>
+	<script src="d3/d3.min.js"></script>
 	<script src="https://d3js.org/topojson.v1.min.js"></script>
 	<style>
 		* {
@@ -63,6 +63,29 @@
 	</style>
 </head>
 <body>
+	<!-- <form>
+		<input type="checkbox" name="" value="elev">elev
+		<input type="checkbox" name="" value="Temp">Temp
+		<input type="checkbox" name="" value="TempC">TempC
+		<input type="checkbox" name="" value="Dewp">Dewp
+		<input type="checkbox" name="" value="Relh">Relh
+		<input type="checkbox" name="" value="Winds">Winds
+		<input type="checkbox" name="" value="SLP">SLP
+		<input type="checkbox" name="" value="Altimeter">Altimeter
+		<input type="checkbox" name="" value="Visibility">Visibility
+		<input type="checkbox" name="" value="TempHi24">TempHi24
+		<input type="checkbox" name="" value="TempLo24">TempLo24
+		<input type="checkbox" name="" value="RelhHi24">RelhHi24
+		<input type="checkbox" name="" value="RelhLo24">RelhLo24
+		<input type="checkbox" name="" value="GustHi24">GustHi24
+		<input type="checkbox" name="" value="RawsTemp12">RawsTemp12
+		<input type="checkbox" name="" value="RawsTemp13">RawsTemp13
+		<input type="checkbox" name="" value="RawsTemp14">RawsTemp14
+		<input type="checkbox" name="" value="RawsRelh12">RawsRelh12
+		<input type="checkbox" name="" value="RawsRelh13">RawsRelh13
+		<input type="checkbox" name="" value="RawsRelh14">RawsRelh14<br>
+		<input type="button" value="Update" onclick="updateCategories()">
+	</form> -->
 	<script>
 		//set up variables and functions we will need
 		var width = window.innerWidth,
@@ -125,15 +148,21 @@
 
 
 		//check to see what data categories were selected
-		var categories = ["elev", "Temp", "TempC", "Dewp", "Relh",
-			"Winds", "SLP", "Altimeter", "Visibility", "TempHi24",
-			"TempLo24", "RelhHi24", "RelhLo24", "GustHi24",
-			"RawsTemp12", "RawsTemp13", "RawsTemp14", "RawsRelh12",
-			"RawsRelh13", "RawsRelh14"];
+		var refreshed = false;
+		var categories = ["Winds", "Temp"];
+		function updateCategories() {
+			console.log("updateCategories was run");
+			refreshed = true;
+			var categories = [];
+			var checked = d3.selectAll("input:checked")[0];
+			for (var i = 0; i < checked.length; i++){
+				categories.push(checked[i].value)
+			}
+		}
 		var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
-		var firstTime = true;
 		var dt = 1000;
-		var delay = 5*dt;
+		var delay = 4*dt;
+		var index = 0;
 		d3.json(dataUrl, function(error, data) {
 			if (error) { console.log("There was an error loading the data." + error); }
 
@@ -141,11 +170,15 @@
 
 			makeLegend();
 
-			var i = 0;
-			cycle(i, data);
+			cycle(data);
+			index++;
 			setInterval(function() {
-						i++;
-						cycle(i, data);
+						if (refreshed) {
+							index = 0;
+							refreshed = false;
+						}
+						cycle(data);
+						index++;
 					}, 2*dt + delay);
 		});
 
@@ -176,23 +209,28 @@
 						return "rgb(" + num + ", 0, " + (255 - num) + ")";
 					});
 		}
-		function cycle(index, dataFull) {
+
+		function cycle(dataFull) {
 			//pick next data category
 			var category = categories[index % categories.length];
 
-			initialize(dataFull, category);
+			var previouslyMade = d3.selectAll("circles." + category);
+			if (previouslyMade[0].length === 0) {
+				initialize(dataFull, category);
+			}
 
 			g.selectAll("#above")
 				.transition()
 					.duration(dt)
 					.style("opacity", 0)
-					.remove();
+					.attr("id", "below");
+					// .remove();
 
 			g.selectAll("#below")
-				.attr("id", "above")
 				.transition()
 					.duration(dt)
-					.style("opacity", 1);
+					.style("opacity", 1)
+					.attr("id", "above");
 		}
 
 		function initialize(dataFull, name) {
@@ -267,38 +305,6 @@
 
 			maxText
 				.text(max);
-
-			// var numRects = 100;
-			// var rectsData = [];
-			// var spacing = (max - min)/numRects;
-			// for (var i = 0; i < numRects; i++) {
-			// 	rectsData.push(min + spacing*i);
-			// }
-			// rects = g.selectAll("rect.heatmap")
-			// 		.data(rectsData);
-			//
-			// rects
-			// 	.enter()
-			// 		.append("rect")
-			// 		.attr("class", name)
-			// 		.attr("id", "changing")
-			// 		.attr("x", function(d, i) {
-			// 			return 2.2*categoryTextWidth + i*(.75*categoryTextWidth/numRects);
-			// 		})
-			// 		.attr("y", textHeight/2)
-			// 		.attr("width", categoryTextWidth/numRects)
-			// 		.attr("height", textHeight/2)
-			// 		.attr("fill", function(d) {
-			// 			var num = Math.round(colorScale(d));
-			// 			return "rgb(" + num + ", 0, " + (255 - num) + ")";
-			// 		})
-			// 		.style("opacity", 0)
-			//
-			// rects
-			// 		.attr("fill", function(d) {
-			// 			var num = Math.round(colorScale(d));
-			// 			return "rgb(" + num + ", 0, " + (255 - num) + ")";
-			// 		})
 
 			//add data vis with class 'name' and opacity 0
 			var circs = g.selectAll("circle#below." + name)

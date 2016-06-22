@@ -6,11 +6,56 @@
 		<script type="text/javascript" src="d3/d3.js"></script>
 	</head>
 	<body>
-		<p id="test">testing.</p>
-		<p id="test" class="change">testing.</p>
-    <script type="text/javascript">
-			d3.selectAll("p#test.change")
-				.text("Success.");
-    </script>
+
+		<form>
+			<input type="checkbox" name="" value="elev">elev
+			<input type="checkbox" name="" value="Temp">Temp
+			<input type="checkbox" name="" value="TempC">TempC
+			<input type="checkbox" name="" value="Dewp">Dewp
+			<input type="checkbox" name="" value="Relh">Relh
+			<input type="checkbox" name="" value="Winds">Winds
+			<input type="checkbox" name="" value="SLP">SLP
+			<input type="checkbox" name="" value="Altimeter">Altimeter
+			<input type="checkbox" name="" value="Visibility">Visibility
+			<input type="checkbox" name="" value="TempHi24">TempHi24
+			<input type="checkbox" name="" value="TempLo24">TempLo24
+			<input type="checkbox" name="" value="RelhHi24">RelhHi24
+			<input type="checkbox" name="" value="RelhLo24">RelhLo24
+			<input type="checkbox" name="" value="GustHi24">GustHi24
+			<input type="checkbox" name="" value="RawsTemp12">RawsTemp12
+			<input type="checkbox" name="" value="RawsTemp13">RawsTemp13
+			<input type="checkbox" name="" value="RawsTemp14">RawsTemp14
+			<input type="checkbox" name="" value="RawsRelh12">RawsRelh12
+			<input type="checkbox" name="" value="RawsRelh13">RawsRelh13
+			<input type="checkbox" name="" value="RawsRelh14">RawsRelh14<br>
+			<input type="button" value="Update" onclick="update()">
+		</form>
+		<script>
+
+			// d3.selectAll("input")
+			// 	.on("change", refresh());
+
+			function update() {
+					var categories = [];
+					var checked = d3.selectAll("input:checked")[0];
+					for (var i = 0; i < checked.length; i++){
+						categories.push(checked[i].value)
+					}
+					var p = d3.select("body").selectAll("p")
+							.data(categories);
+
+					p
+						.enter()
+							.append("p")
+							.text(function(d) { return d; });
+
+					p
+							.text(function(d) { return d; });
+
+					p
+						.exit()
+							.remove();
+			}
+	</script>
   </body>
 </html>
