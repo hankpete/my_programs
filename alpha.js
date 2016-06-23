@@ -19,11 +19,11 @@ jsonNames = jsonify(names);
 
 function jsonify(list) {
     jsonList = [];
-    for (var i = 0; i , list.length; i++) {
+    for (var i = 0; i < list.length; i++) {
         var spaceIndex = list[i].indexOf(" ");
         var first = list[i].slice(0, spaceIndex);
         var last = list[i].slice(spaceIndex, list[i].length);
-        jsonList.push('{ "first":' + first + ', "last":' + last + ' }');
+        jsonList.push({ "first" :  first  , "last" : last });
     }
     return jsonList;
 }
