@@ -28,14 +28,14 @@
 			<input type="checkbox" name="" value="RawsRelh12">RawsRelh12
 			<input type="checkbox" name="" value="RawsRelh13">RawsRelh13
 			<input type="checkbox" name="" value="RawsRelh14">RawsRelh14<br>
-			<input type="button" value="Update" onclick="update()">
+			<input type="button" value="Update" onclick="updateCategories()">
 		</form>
 		<script>
 
 			// d3.selectAll("input")
 			// 	.on("change", refresh());
 
-			function update() {
+			function updateCategories() {
 					var categories = [];
 					var checked = d3.selectAll("input:checked")[0];
 					for (var i = 0; i < checked.length; i++){
