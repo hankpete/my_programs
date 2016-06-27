@@ -1,61 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>D3 Test</title>
-		<script type="text/javascript" src="d3/d3.js"></script>
-	</head>
-	<body>
+<head>
+	<meta charset="utf-8">
+	<title>D3 Test</title>
+	<script src="d3/d3.min.js"></script>
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+</head>
+<body>
+	<script>
 
-		<form>
-			<input type="checkbox" name="" value="elev">elev
-			<input type="checkbox" name="" value="Temp">Temp
-			<input type="checkbox" name="" value="TempC">TempC
-			<input type="checkbox" name="" value="Dewp">Dewp
-			<input type="checkbox" name="" value="Relh">Relh
-			<input type="checkbox" name="" value="Winds">Winds
-			<input type="checkbox" name="" value="SLP">SLP
-			<input type="checkbox" name="" value="Altimeter">Altimeter
-			<input type="checkbox" name="" value="Visibility">Visibility
-			<input type="checkbox" name="" value="TempHi24">TempHi24
-			<input type="checkbox" name="" value="TempLo24">TempLo24
-			<input type="checkbox" name="" value="RelhHi24">RelhHi24
-			<input type="checkbox" name="" value="RelhLo24">RelhLo24
-			<input type="checkbox" name="" value="GustHi24">GustHi24
-			<input type="checkbox" name="" value="RawsTemp12">RawsTemp12
-			<input type="checkbox" name="" value="RawsTemp13">RawsTemp13
-			<input type="checkbox" name="" value="RawsTemp14">RawsTemp14
-			<input type="checkbox" name="" value="RawsRelh12">RawsRelh12
-			<input type="checkbox" name="" value="RawsRelh13">RawsRelh13
-			<input type="checkbox" name="" value="RawsRelh14">RawsRelh14<br>
-			<input type="button" value="Update" onclick="updateCategories()">
-		</form>
-		<script>
+		var data = [1, 5, 8, 3, 2, 3, 4, 4.6, 8.9, 100];
+		test(data);
 
-			// d3.selectAll("input")
-			// 	.on("change", refresh());
-
-			function updateCategories() {
-					var categories = [];
-					var checked = d3.selectAll("input:checked")[0];
-					for (var i = 0; i < checked.length; i++){
-						categories.push(checked[i].value)
-					}
-					var p = d3.select("body").selectAll("p")
-							.data(categories);
-
-					p
-						.enter()
-							.append("p")
-							.text(function(d) { return d; });
-
-					p
-							.text(function(d) { return d; });
-
-					p
-						.exit()
-							.remove();
+		function average(data) {
+			//returns mean of data
+			var sum = 0;
+			for (var i = 0; i < data.length; i++) {
+				sum += data[i];
 			}
+			var average = sum/data.length;
+			return average;
+		}
+
+		function standDev(data, mean) {
+			//returns standard deviation of data
+			var diffs = [];
+			for (var i = 0; i < data.length; i++) {
+				diffs.push( Math.abs(data[i] - mean) );
+			}
+			standDev = average(diffs);
+			return standDev;
+		}
+
+
+		function test(dataList) {
+			var avg = average(dataList);
+			console.log(avg);
+			var stdv = standDev(dataList, avg);
+			console.log(stdv);
+
+			for (var i = 0; i < dataList.length; i++) {
+				if (dataList[i] > (avg - 3*stdv)) {
+					var min = dataList[i];
+					console.log(min);
+					break;
+				}
+			}
+			for (var i = dataList.length; i >= 0; i--) {
+				if (dataList[i] < (avg + 3*stdv)) {
+					var max = dataList[i];
+					console.log(max);
+					break;
+				}
+			}
+			var colorScale = d3.scale.linear()
+					.domain([min, max])
+					.range([0, 255]);
+			var maps = [];
+			for (var i = 0; i < dataList.length; i++) {
+				maps.push(colorScale(dataList[i]));
+			}
+			console.log(maps);
+		}
+
 	</script>
-  </body>
+
+</body>
 </html>
