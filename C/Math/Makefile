@@ -1,1 +1,1 @@
-CFLAGS=-lm -Wall -g -lgmp
+CFLAGS=-lm -Wall -g 

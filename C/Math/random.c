@@ -8,7 +8,7 @@ int main()
 	int i;
 	int r;
 	for (i = 0; i < 10; i++) {
-		r = rand() % 5;
+		r = rand();// % 5;
 		printf("%d\n", r);
 	}
 
