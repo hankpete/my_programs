@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>D3 Test</title>
+	<script src="d3/d3.js"></script>
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			background-color: #eee;
+		}
+
+		svg {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+		}
+
+		.background {
+			fill: #eee;
+			pointer-events: all;
+		}
+
+		#zones.active {
+			fill: #55a;
+		}
+
+		#zones {
+			fill: #555;
+		}
+		#zone-borders {
+		  fill: none;
+		  stroke: #fff;
+		  stroke-width: 1px;
+		  stroke-linejoin: round;
+		  stroke-linecap: round;
+		  pointer-events: none;
+	    }
+
+		#moused-zone {
+			fill: #5a5;
+		}
+	</style>
+</head>
+<body>
+	<script>
+		//set up variables and functions we will need
+		var width = window.innerWidth;
+		var height = window.innerHeight;
+		var scale = 9000;
+
+		var projectionFunc = d3.geo.mercator()
+			.scale(scale)
+			.center([-119.6, 36.3])
+			.translate([width/2, height/2]);
+
+		var pathFunc = d3.geo.path()
+			.projection(projectionFunc);
+
+		var svg = d3.select("body").append("svg")
+			.attr("width", width)
+			.attr("height", height);
+
+		var g = svg.append("g");
+
+		//global vars we'll need
+		var zoneNumbers = [];
+		var orderedZoneNumbers = [];
+		var index = 0;
+		var dt = 2000;
+		// var debug;
+
+		d3.json("hnxSaZones.json", function(error, hnxJson) {
+			if (error) { console.log("there was an error loading the data" + error); }
+
+			//take the data and set up basic map stuff
+			var zones = topojson.feature(hnxJson, hnxJson.objects.hnxsaZones).features;
+			var borders = topojson.mesh(hnxJson, hnxJson.objects.hnxsaZones, function(a, b) { return a !== b; } );
+
+			//put the zone numbers in order
+			zones.sort(function(a, b) { return a.properties.ZONE - b.properties.ZONE; })
+
+			// debug = zones;
+
+			g.selectAll("path")
+					.data(zones)
+				.enter()
+					.append("path")
+					.attr("id", "zones")
+					// .attr("id", function(d) {
+					// 	return "zone-" + d.properties.ZONE;
+					// })
+					.attr("d", pathFunc);
+
+			//make borders separately for better transitions etc
+			g.append("path")
+					.datum(borders)
+					.attr("id", "zone-borders")
+					.attr("d", pathFunc);
+
+			//now that we have basic map set up, cycle through the zones
+			cycle(zones);
+			setInterval(function() {
+				index++;
+				cycle(zones)
+			}, dt);
+
+		});
+
+
+		var centered;	//initialize variable for later to see what zone is centered
+		function cycle(data) {
+			//this function picks the next zone and centers the map on it
+
+			var zoneData = data[ index % data.length ]
+
+			//get center of next zone
+			var centroid = pathFunc.centroid(zoneData);
+			var x = -centroid[0];
+			var y = -centroid[1];
+			var scaleFactor = 3;	//how far to zoom
+			centered = zoneData;	//for changing fill
+
+			//change fill
+			g.selectAll("path")
+			  .classed("active", centered && function(d) { return d === centered; });
+
+			// Transition to the new transform.
+			g.transition()
+					.duration(dt/2)
+					.attr("transform",
+						"translate(" + width/2 + "," + height/2 + ")scale(" + scaleFactor + ")translate(" + x + "," + y + ")"
+					);
+
+			//make borders lighter
+			g.selectAll("#zone-borders")
+				.style("stroke-width", 1.5/scaleFactor + "px");
+
+		}
+	</script>
+</body>
+</html>
