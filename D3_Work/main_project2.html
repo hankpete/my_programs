@@ -4,32 +4,27 @@
 	<meta charset="utf-8">
 	<title>D3 Test</title>
 	<script src="d3/d3.js"></script>
-	<script src="https://d3js.org/topojson.v1.min.js"></script>
+	<script src="d3/topojson.min.js"></script>
 	<style>
 		* {
 			margin: 0;
 			padding: 0;
 		}
-
 		body {
 			background-color: #eee;
 		}
-
 		svg {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 		}
-
 		.background {
 			fill: #eee;
 			pointer-events: all;
 		}
-
 		#zones.active {
 			fill: #55a;
 		}
-
 		#zones {
 			fill: #555;
 		}
@@ -41,9 +36,16 @@
 		  stroke-linecap: round;
 		  pointer-events: none;
 	    }
+		.category-text {
+			font-family: Roboto;
+			fill: pink;
+			font-size: 36px;
+		}
 
-		#moused-zone {
-			fill: #5a5;
+		.min-text, .max-text {
+			font-family: Roboto;
+			fill: pink;
+			font-size: 15px;
 		}
 	</style>
 </head>
@@ -66,7 +68,13 @@
 			.attr("width", width)
 			.attr("height", height);
 
-		var g = svg.append("g");
+		//setup map on bot
+		var gMap = svg.append("g")
+				.attr("class", "map");
+
+		//setup vis on top
+		var gVis = svg.append("g")
+				.attr("class", "vis");
 
 		//global vars we'll need
 		var zoneNumbers = [];
@@ -87,7 +95,7 @@
 
 			// debug = zones;
 
-			g.selectAll("path")
+			gMap.selectAll("path")
 					.data(zones)
 				.enter()
 					.append("path")
@@ -98,7 +106,7 @@
 					.attr("d", pathFunc);
 
 			//make borders separately for better transitions etc
-			g.append("path")
+			gMap.append("path")
 					.datum(borders)
 					.attr("id", "zone-borders")
 					.attr("d", pathFunc);
@@ -155,7 +163,11 @@
 								//two possibilities
 								if (cycleEnded) {
 									//turn off before zone change
-									svg.selectAll("circle")
+									gVis.selectAll("circle")
+										.transition()
+											.duration(timePerData)
+											.style("opacity", 0);
+									gVis.selectAll("text")
 										.transition()
 											.duration(timePerData)
 											.style("opacity", 0);
@@ -198,7 +210,7 @@
 					.domain([0, numRects - 1])
 					.range([0, 255]);
 
-			svg.selectAll("rect.heatmap")
+			gVis.selectAll("rect.heatmap")
 					.data(rectsData)
 				.enter()
 					.append("rect")
@@ -235,7 +247,7 @@
 					.scale(scale * scaleFactor);
 
 			//change fill and transition to new transform
-			g.selectAll("path")
+			gMap.selectAll("path")
 					.classed("active", centered && function(d) { return d === centered; })
 				.transition()
 					.duration(timePerData)
@@ -249,11 +261,11 @@
 			// 		);
 
 			//make borders lighter
-			g.selectAll("#zone-borders")
+			gMap.selectAll("#zone-borders")
 				.style("stroke-width", 1.5/scaleFactor + "px");
 
 			//put data in right spot
-			svg.selectAll("circle")
+			gVis.selectAll("circle")
 					.attr("cx", function(d) {
 						return projectionFunc([d.longitude, d.latitude])[0];
 					})
@@ -270,13 +282,13 @@
 			var nextCategory = categories[i % categories.length];
 			var previousCategory = categories[(i-1) % categories.length];
 
-			svg.selectAll("#" + previousCategory)		//above
+			gVis.selectAll("#" + previousCategory)		//above
 				.transition()
 					.duration(dataChangeTransition)
 					.style("opacity", 0);
 
 
-			svg.selectAll("#" + nextCategory)		//below
+			gVis.selectAll("#" + nextCategory)		//below
 				.transition()
 					.duration(dataChangeTransition)
 					.style("opacity", 1);
@@ -345,60 +357,8 @@
 			// 				.domain([min, max])
 			// 				.range([2, 10]);
 
-			//display name of category
-			var textHeight = height/15;
-			var categoryTextWidth = width/4;
-			var text = svg.selectAll("text#" + name + ".category-text")
-					.data([0]);
-
-			text
-				.enter()
-					.append("text")
-					.attr("class", "category-text")
-					.attr("id", name)
-					.attr("x", categoryTextWidth)
-					.attr("y", textHeight)
-					.text(name)
-					.style("opacity", 0);
-
-			text
-					.text(name);
-
-			//show a legend for the color map
-			var minText = svg.selectAll("text#" + name + ".min-text")
-					.data([0]);
-
-			minText
-				.enter()
-					.append("text")
-					.attr("class", "min-text")
-					.attr("id", name)
-					.attr("x", 2*categoryTextWidth)
-					.attr("y", textHeight)
-					.text(min)
-					.style("opacity", 0);
-
-			minText
-				.text(min);
-
-			var maxText = svg.selectAll("text#" + name + ".max-text")
-					.data([0]);
-
-			maxText
-				.enter()
-					.append("text")
-					.attr("class", "max-text")
-					.attr("id", name)
-					.attr("x", 3*categoryTextWidth)
-					.attr("y", textHeight)
-					.text(max)
-					.style("opacity", 0);
-
-			maxText
-				.text(max);
-
 			//add data vis with class 'name' and opacity 0
-			var circs = svg.selectAll("circle." + name)
+			var circs = gVis.selectAll("circle." + name)
 					.data(dataFull);
 
 			circs
@@ -462,8 +422,60 @@
 					.remove()
 
 			//the ones that had no data
-			svg.selectAll("circle.undefined")
+			gVis.selectAll("circle.undefined")
 					.remove();
+
+			//display name of category
+			var textHeight = height/15;
+			var categoryTextWidth = width/4;
+			var text = gVis.selectAll("text#" + name + ".category-text")
+					.data([0]);
+
+			text
+				.enter()
+					.append("text")
+					.attr("class", "category-text")
+					.attr("id", name)
+					.attr("x", categoryTextWidth)
+					.attr("y", textHeight)
+					.text(name)
+					.style("opacity", 0);
+
+			text
+					.text(name);
+
+			//show a legend for the color map
+			var minText = gVis.selectAll("text#" + name + ".min-text")
+					.data([0]);
+
+			minText
+				.enter()
+					.append("text")
+					.attr("class", "min-text")
+					.attr("id", name)
+					.attr("x", 2*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(min)
+					.style("opacity", 0);
+
+			minText
+				.text(min);
+
+			var maxText = gVis.selectAll("text#" + name + ".max-text")
+					.data([0]);
+
+			maxText
+				.enter()
+					.append("text")
+					.attr("class", "max-text")
+					.attr("id", name)
+					.attr("x", 3*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(max)
+					.style("opacity", 0);
+
+			maxText
+				.text(max);
 		}
 	</script>
 </body>
