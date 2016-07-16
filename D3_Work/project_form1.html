@@ -15,40 +15,63 @@
 <body>
   <div class="container">
     <h1>Set Options for Vis #1</h1>
+	<div class="well">
+		<h3>Presets</h3>
+		<a href="http://localhost/my_programs/D3_Work/main_project1.php?Temp=on&Relh=on&Winds=on&radius=10&dt=500&delay=1000&showCities=yes&bgColor=%23fff&zoneColor=%23aaa&borderColor=%23fff">Henry's Presets</a>
+	</div>
     <form role="form" action="main_project1.php" method="get">
       <div class="well">
-        <input type="checkbox" name="elev" value="elev">elev
-        <input type="checkbox" name="Temp" value="Temp">Temp
-        <input type="checkbox" name="TempC" value="TempC">TempC
-        <input type="checkbox" name="Dewp" value="Dewp">Dewp<br />
-        <input type="checkbox" name="Relh" value="Relh">Relh
-        <input type="checkbox" name="Winds" value="Winds">Winds
-        <input type="checkbox" name="SLP" value="SLP">SLP
-        <input type="checkbox" name="Altimeter" value="Altimeter">Altimeter<br />
-        <input type="checkbox" name="Visibility" value="Visibility">Visibility
-        <input type="checkbox" name="TempHi24" value="TempHi24">TempHi24
-        <input type="checkbox" name="TempLo24" value="TempLo24">TempLo24
-        <input type="checkbox" name="RelhHi24" value="RelhHi24">RelhHi24<br />
-        <input type="checkbox" name="RelhLo24" value="RelhLo24">RelhLo24
-        <input type="checkbox" name="GustHi24" value="GustHi24">GustHi24
-        <input type="checkbox" name="RawsTemp12" value="RawsTemp12">RawsTemp12
-        <input type="checkbox" name="RawsTemp13" value="RawsTemp13">RawsTemp13<br />
-        <input type="checkbox" name="RawsTemp14" value="RawsTemp14">RawsTemp14
-        <input type="checkbox" name="RawsRelh12" value="RawsRelh12">RawsRelh12
-        <input type="checkbox" name="RawsRelh13" value="RawsRelh13">RawsRelh13
-        <input type="checkbox" name="RawsRelh14" value="RawsRelh14">RawsRelh14<br />
+		<h3>Data Options</h3>
+        <input type="checkbox" name="elev">elev
+        <input type="checkbox" name="Temp">Temp
+        <input type="checkbox" name="TempC">TempC
+        <input type="checkbox" name="Dewp">Dewp<br />
+        <input type="checkbox" name="Relh">Relh
+        <input type="checkbox" name="Winds">Winds
+        <input type="checkbox" name="SLP">SLP
+        <input type="checkbox" name="Altimeter">Altimeter<br />
+        <input type="checkbox" name="Visibility">Visibility
+        <input type="checkbox" name="TempHi24">TempHi24
+        <input type="checkbox" name="TempLo24">TempLo24
+        <input type="checkbox" name="RelhHi24">RelhHi24<br />
+        <input type="checkbox" name="RelhLo24">RelhLo24
+        <input type="checkbox" name="GustHi24">GustHi24
+        <input type="checkbox" name="RawsTemp12">RawsTemp12
+        <input type="checkbox" name="RawsTemp13">RawsTemp13<br />
+        <input type="checkbox" name="RawsTemp14">RawsTemp14
+        <input type="checkbox" name="RawsRelh12">RawsRelh12
+        <input type="checkbox" name="RawsRelh13">RawsRelh13
+        <input type="checkbox" name="RawsRelh14">RawsRelh14<br />
       </div>
       <div class="well">
+		<h3>Data Circles</h3>
         <label>Radius:</label>
         <input type="text" name="radius" value="8">
+		<label>Opacity:</label>
+		<input type="text" name="circleOpacity" value=".75">
       </div>
       <div class="well">
+		<h3>Transitioning</h3>
         <label>Transition Time:</label>
         <input type="text" name="dt" value="750">
         <label>Display Time:</label>
         <input type="text" name="delay" value="3000">
       </div>
-      <input type="submit" value="Update" class="btn btn-defailt">
+	  <div class="well">
+		<h3>Map Style</h3>
+		<input type="checkbox" name="showIds" value="yes">Show ID's<br />
+		<input type="checkbox" name="showCities" value="yes">Show Cities
+	  </div>
+	  <div class="well">
+		<h3>Color Scheme</h3>
+		<label>Background Color:</label>
+		<input type="text" name="bgColor" value="#fff">
+		<label>Zone Color:</label>
+		<input type="text" name="zoneColor" value="#aaa">
+		<label>Border Color:</label>
+		<input type="text" name="borderColor" value="#fff">
+	  </div>
+      <input type="submit" value="Submit" class="btn btn-defailt">
     </form>
   </div>
 </body>

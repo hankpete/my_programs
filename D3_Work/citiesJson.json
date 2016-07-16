@@ -1,0 +1,13 @@
+{
+"cities":[
+{"name":"Visalia", "LAT":36.3295, "LON":-119.2877},
+{"name":"Fresno", "LAT":36.7440, "LON":-119.7680},
+{"name":"Merced", "LAT":37.3061, "LON":-120.4823},
+{"name":"Bakersfield", "LAT":35.7797111491, "LON":-119.185634831},
+{"name":"Santa Barbara", "LAT": 34.4568208914, "LON":-119.90359178},
+{"name":"Ridgecrest", "LAT":35.6270938309, "LON":-117.801479987},
+{"name":"Paso Robles", "LAT":   35.4917961415, "LON":-120.35157564},
+{"name":"Riverbank", "LAT": 37.7580722914, "LON":-121.040993538},
+{"name":"Bishop", "LAT":36.5133329885, "LON":-118.012709031}
+]
+}

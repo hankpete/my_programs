@@ -11,32 +11,17 @@
 			padding: 0;
 		}
 
-		body {
-			background-color: #eee;
-		}
-
 		svg {
 			position: absolute;
 			width: 100%;
 			height: 100%;
 		}
 
-		.background {
-			fill: #eee;
-			pointer-events: all;
-		}
-
 		#zones {
-			fill: #555;
-		}
-
-		#zones .active {
-			fill: #55a;
 		}
 
 		#zone-borders {
 		  fill: none;
-		  stroke: #fff;
 		  stroke-width: 1px;
 		  stroke-linejoin: round;
 		  stroke-linecap: round;
@@ -53,6 +38,11 @@
 
 		#moused-zone {
 			fill: #5a5;
+		}
+
+		text.cities {
+			font-family: Roboto;
+			font-size: 15px;
 		}
 
 		.category-text {
@@ -79,13 +69,15 @@
 					"RawsRelh13", "RawsRelh14"];
       $catsLength = count($cats);
 
+	  echo "<p>";
       for ($i = 0; $i < $catsLength; $i++)
       {
-        if( $_GET[ $cats[$i] ] == $cats[$i] )
+        if( $_GET[ $cats[$i] ] == "on" )
         {
           echo htmlspecialchars($cats[$i]);
         }
       }
+	  echo "</p>";
     ?>
 	</div>
 
@@ -94,6 +86,15 @@
 			$radius = $_GET[ "radius" ];
 			echo "<p>";
 			echo htmlspecialchars($radius);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="circleOpacity-div" style="display: none;">
+		<?php
+			$circleOpacity = $_GET[ "circleOpacity" ];
+			echo "<p>";
+			echo htmlspecialchars($circleOpacity);
 			echo "</p>";
 		?>
 	</div>
@@ -116,12 +117,57 @@
 		?>
 	</div>
 
+	<div id="showIds-div" style="display: none;">
+		<?php
+			$showIds = $_GET[ "showIds" ];
+			echo "<p>";
+			echo htmlspecialchars($showIds);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="showCities-div" style="display: none;">
+		<?php
+			$showCities = $_GET[ "showCities" ];
+			echo "<p>";
+			echo htmlspecialchars($showCities);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="bgColor-div" style="display: none;">
+		<?php
+			$bgColor = $_GET[ "bgColor" ];
+			echo "<p>";
+			echo htmlspecialchars($bgColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="zoneColor-div" style="display: none;">
+		<?php
+			$zoneColor = $_GET[ "zoneColor" ];
+			echo "<p>";
+			echo htmlspecialchars($zoneColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="borderColor-div" style="display: none;">
+		<?php
+			$borderColor = $_GET[ "borderColor" ];
+			echo "<p>";
+			echo htmlspecialchars($borderColor);
+			echo "</p>";
+		?>
+	</div>
+
 	<script>
 		//begin by getting the variables put into DOM by form/php
 
 		//set categories variable from the form
 		var div = document.getElementById("category-div");
-		var myData = div.textContent;
+		var myData = div.children[0].textContent;
 
 		var allCategories = ["elev", "Temp", "TempC", "Dewp", "Relh",
 				"Winds", "SLP", "Altimeter", "Visibility", "TempHi24",
@@ -135,18 +181,42 @@
 				categories.push(allCategories[i]);
 			}
 		}
-		//set radius variable from the form
+
+		//set radius 
 		div = document.getElementById("radius-div");
-		var radius = +div.children[0].textContent;
+		var radius = parseFloat(div.children[0].textContent);
 
-		//set dt variable from the form
+		//set opacity 
+		div = document.getElementById("circleOpacity-div");
+		var circleOpacity = parseFloat(div.children[0].textContent);
+
+		//set dt 
 		div = document.getElementById("dt-div");
-		var dt = +div.children[0].textContent;
+		var dt = parseInt(div.children[0].textContent);
 
-		//set delay variable from the form
+		//set delay 
 		div = document.getElementById("delay-div");
-		var delay = +div.children[0].textContent;
+		var delay = parseInt(div.children[0].textContent);
 
+		//set showIds 
+		div = document.getElementById("showIds-div");
+		var showIds = div.children[0].textContent;
+
+		//set showCities 
+		div = document.getElementById("showCities-div");
+		var showCities = div.children[0].textContent;
+
+		//set bgColor
+		div = document.getElementById("bgColor-div");
+		var bgColor  = div.children[0].textContent;
+		
+		//set zoneColor
+		div = document.getElementById("zoneColor-div");
+		var zoneColor  = div.children[0].textContent;
+	
+		//set borderColor
+		div = document.getElementById("borderColor-div");
+		var borderColor = div.children[0].textContent;
 
 		//set up variables and functions we will need
 		var width = window.innerWidth,
@@ -164,45 +234,62 @@
 			.attr("width", width)
 			.attr("height", height);
 
+		svg.append("rect")
+			.attr("x", "0")
+			.attr("y", "0")
+			.attr("width", width)
+			.attr("height", height)
+			.attr("fill", bgColor);
+		
+		var gMap = svg.append("g");
+		var gVis = svg.append("g");
+
 		//get hnx map data and plot it
 		d3.json("hnxSaZones.json", function(error, hnx) {
 			if (error) throw error;
 
 			var zones = topojson.feature(hnx, hnx.objects.hnxsaZones).features;
-			svg.selectAll("path")
+			gMap.selectAll("path")
 					.data(zones)
 				.enter()
 					.append("path")
 					.attr("id", "zones")
+					.attr("fill", zoneColor)
 					.attr("d", pathFunc);
 
 			//make borders separately so they dont slow it down
-			svg.append("path")
+			gMap.append("path")
 		        .datum(topojson.mesh(hnx, hnx.objects.hnxsaZones, function(a, b) {
 				    return a !== b;
 			    }))
 		        .attr("id", "zone-borders")
+				.attr("stroke", borderColor)
 		        .attr("d", pathFunc);
 
-			//label zones
-			svg.selectAll("text")
-				.data(zones)
-			  .enter().append("text")
-			  	.attr("id", "ids")
-				.attr("x", function(d) {
-					return projectionFunc([d.properties.LON, d.properties.LAT])[0];
-				})
-				.attr("y", function(d) {
-					return projectionFunc([d.properties.LON, d.properties.LAT])[1];
-				})
-				.text(function(d) {
-					return d.properties.ZONE;
-				});
+			//label zones if asked
+			if (showIds == "yes") {
+				gMap.selectAll("text")
+					.data(zones)
+			  	  .enter().append("text")
+			  		.attr("id", "ids")
+					.attr("x", function(d) {
+						return projectionFunc([d.properties.LON, d.properties.LAT])[0];
+					})
+					.attr("y", function(d) {
+						return projectionFunc([d.properties.LON, d.properties.LAT])[1];
+					})
+					.text(function(d) {
+						return d.properties.ZONE;
+					});
+			}
 		});
+	
 
-//////////////////////////////////////////////////////////////
-///				main vis 																			//////
-///////////////////////////////////////////////////////////////
+				
+
+		//////////////////////////////////////////////////////////////
+		///				main vis 								//////
+		///////////////////////////////////////////////////////////////
 		//main loop
 		var index = 0;
 		main();
@@ -212,14 +299,52 @@
 			//put all the vis on the svg, make the heatmap, cycle through
 			//changing opacity on the categories selected (default all)
 			//get the data and run initialize() for each category
-			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
-			d3.json(dataUrl, function(error, data) {
+			var offlineData = "offlineData.json";
+			//var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
+			//d3.json(dataUrl, function(error, data) {
+			d3.json(offlineData, function(error, data) {
 				if (error) { console.log("There was an error loading the data." + error); }
 
 				for (var i = 0; i < categories.length; i++) {
 					initialize(data.stations, categories[i])
 				}
 			});
+
+	    	//label cities if asked (last so above?)
+	    	if (showCities=="yes") {
+	    		d3.json("citiesJson.json", function(error, data) {
+	    			if (error) { console.log("There was an error loading the cities data: " + error); }
+	    			
+	    			var cities = data.cities;
+	    
+	    			gVis.selectAll("circle.cities")
+	    				.data(cities)
+	    			  .enter()
+	    				.append("circle")
+	    				.attr("class", "cities")
+	    				.attr("cx", function(d) {
+                        	return projectionFunc( [d.LON, d.LAT] )[0];
+                        })
+                        .attr("cy", function(d) {
+                            return projectionFunc( [d.LON, d.LAT] )[1];
+                        })
+                        .attr("r", 3);
+                 
+                 	gVis.selectAll("text.cities")
+                        .data(cities)
+                      .enter()
+                        .append("text")             
+	    				.attr("class", "cities")
+                        .attr("x", function(d) {
+                            return projectionFunc( [d.LON, d.LAT] )[0] + 5;
+                        })
+                        .attr("y", function(d) {
+                            return projectionFunc( [d.LON, d.LAT] )[1];
+                        })
+                        .text(function(d) { return d.name; });
+	    		});
+	    	}
+
 			makeLegend();
 			cycle();
 			index++;
@@ -243,7 +368,7 @@
 					.domain([0, numRects - 1])
 					.range([0, 255]);
 
-			svg.selectAll("rect.heatmap")
+			gVis.selectAll("rect.heatmap")
 					.data(rectsData)
 				.enter()
 					.append("rect")
@@ -266,15 +391,20 @@
 			var nextCategory = categories[index % categories.length];
 			var previousCategory = categories[(index-1) % categories.length];
 
-			svg.selectAll("#" + previousCategory)		//above
+			gVis.selectAll("#" + previousCategory)		//above
 				.transition()
 					.duration(dt)
 					.style("opacity", 0);
 
-			svg.selectAll("#" + nextCategory)		//below
+			gVis.selectAll("text#" + nextCategory)		//below
 				.transition()
 					.duration(dt)
 					.style("opacity", 1);
+
+			gVis.selectAll("circle#" + nextCategory)		//below
+				.transition()
+					.duration(dt)
+					.style("opacity", circleOpacity);
 		}
 
 
@@ -339,60 +469,9 @@
 			// 				.domain([min, max])
 			// 				.range([2, 10]);
 
-			//display name of category
-			var textHeight = height/15;
-			var categoryTextWidth = width/4;
-			var text = svg.selectAll("text#" + name + ".category-text")
-					.data([0]);
-
-			text
-				.enter()
-					.append("text")
-					.attr("class", "category-text")
-					.attr("id", name)
-					.attr("x", categoryTextWidth)
-					.attr("y", textHeight)
-					.text(name)
-					.style("opacity", 0);
-
-			text
-					.text(name);
-
-			//show a legend for the color map
-			var minText = svg.selectAll("text#" + name + ".min-text")
-					.data([0]);
-
-			minText
-				.enter()
-					.append("text")
-					.attr("class", "min-text")
-					.attr("id", name)
-					.attr("x", 2*categoryTextWidth)
-					.attr("y", textHeight)
-					.text(min)
-					.style("opacity", 0);
-
-			minText
-				.text(min);
-
-			var maxText = svg.selectAll("text#" + name + ".max-text")
-					.data([0]);
-
-			maxText
-				.enter()
-					.append("text")
-					.attr("class", "max-text")
-					.attr("id", name)
-					.attr("x", 3*categoryTextWidth)
-					.attr("y", textHeight)
-					.text(max)
-					.style("opacity", 0);
-
-			maxText
-				.text(max);
 
 			//add data vis with class 'name' and opacity 0
-			var circs = svg.selectAll("circle." + name)
+			var circs = gVis.selectAll("circle." + name)
 					.data(dataFull);
 
 			circs
@@ -458,6 +537,58 @@
 			//the ones that had no data
 			svg.selectAll("circle.undefined")
 					.remove();
+
+			//display name of category
+			var textHeight = height/15;
+			var categoryTextWidth = width/4;
+			var text = gVis.selectAll("text#" + name + ".category-text")
+					.data([0]);
+
+			text
+				.enter()
+					.append("text")
+					.attr("class", "category-text")
+					.attr("id", name)
+					.attr("x", categoryTextWidth)
+					.attr("y", textHeight)
+					.text(name)
+					.style("opacity", 0);
+
+			text
+					.text(name);
+
+			//show a legend for the color map
+			var minText = gVis.selectAll("text#" + name + ".min-text")
+					.data([0]);
+
+			minText
+				.enter()
+					.append("text")
+					.attr("class", "min-text")
+					.attr("id", name)
+					.attr("x", 2*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(min)
+					.style("opacity", 0);
+
+			minText
+				.text(min);
+
+			var maxText = gVis.selectAll("text#" + name + ".max-text")
+					.data([0]);
+
+			maxText
+				.enter()
+					.append("text")
+					.attr("class", "max-text")
+					.attr("id", name)
+					.attr("x", 3*categoryTextWidth)
+					.attr("y", textHeight)
+					.text(max)
+					.style("opacity", 0);
+
+			maxText
+				.text(max);
 		}
 
 
