@@ -17,9 +17,6 @@
 			height: 100%;
 		}
 
-		#zones {
-		}
-
 		#zone-borders {
 		  fill: none;
 		  stroke-width: 1px;
@@ -29,8 +26,7 @@
 	    }
 
 		#ids {
-			fill: #fff;
-			font-family: helvetica;
+			font-family: Roboto;
 			font-size: 10px;
 			text-anchor: middle;
 			opacity: .75;
@@ -47,13 +43,11 @@
 
 		.category-text {
 			font-family: Roboto;
-			fill: #55f;
 			font-size: 36px;
 		}
 
 		.min-text, .max-text {
 			font-family: Roboto;
-			fill: black;
 			font-size: 15px;
 		}
 	</style>
@@ -162,6 +156,51 @@
 		?>
 	</div>
 
+	<div id="zoneTextColor-div" style="display:none">
+		<?php
+		 	$zoneTextColor = $_GET[ "zoneTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($zoneTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="cityTextColor-div" style="display:none">
+		<?php
+			$cityTextColor = $_GET[ "cityTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($cityTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="minTextColor-div" style="display:none">
+		<?php
+			$minTextColor = $_GET[ "minTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($minTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="maxTextColor-div" style="display:none">
+		<?php
+			$maxTextColor = $_GET[ "maxTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($maxTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="catTextColor-div" style="display:none">
+		<?php
+			$catTextColor = $_GET[ "catTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($catTextColor);
+			echo "</p>";
+		?>
+	</div>
+
 	<script>
 		//begin by getting the variables put into DOM by form/php
 
@@ -182,41 +221,62 @@
 			}
 		}
 
-		//set radius 
+		//set radius
 		div = document.getElementById("radius-div");
 		var radius = parseFloat(div.children[0].textContent);
 
-		//set opacity 
+		//set opacity
 		div = document.getElementById("circleOpacity-div");
 		var circleOpacity = parseFloat(div.children[0].textContent);
 
-		//set dt 
+		//set dt
 		div = document.getElementById("dt-div");
 		var dt = parseInt(div.children[0].textContent);
 
-		//set delay 
+		//set delay
 		div = document.getElementById("delay-div");
 		var delay = parseInt(div.children[0].textContent);
 
-		//set showIds 
+		//set showIds
 		div = document.getElementById("showIds-div");
 		var showIds = div.children[0].textContent;
 
-		//set showCities 
+		//set showCities
 		div = document.getElementById("showCities-div");
 		var showCities = div.children[0].textContent;
 
 		//set bgColor
 		div = document.getElementById("bgColor-div");
 		var bgColor  = div.children[0].textContent;
-		
+
 		//set zoneColor
 		div = document.getElementById("zoneColor-div");
 		var zoneColor  = div.children[0].textContent;
-	
+
 		//set borderColor
 		div = document.getElementById("borderColor-div");
 		var borderColor = div.children[0].textContent;
+
+		//set zoneTextColor
+		div = document.getElementById("zoneTextColor-div");
+		var zoneTextColor = div.children[0].textContent;
+
+		//set cityTextColor
+		div = document.getElementById("cityTextColor-div");
+		var cityTextColor = div.children[0].textContent;
+
+		//set minTextColor
+		div = document.getElementById("minTextColor-div");
+		var minTextColor = div.children[0].textContent;
+
+		//set maxTextColor
+		div = document.getElementById("maxTextColor-div");
+		var maxTextColor = div.children[0].textContent;
+
+		//set catTextColor
+		div = document.getElementById("catTextColor-div");
+		var catTextColor = div.children[0].textContent;
+
 
 		//set up variables and functions we will need
 		var width = window.innerWidth,
@@ -240,7 +300,7 @@
 			.attr("width", width)
 			.attr("height", height)
 			.attr("fill", bgColor);
-		
+
 		var gMap = svg.append("g");
 		var gVis = svg.append("g");
 
@@ -269,27 +329,29 @@
 			//label zones if asked
 			if (showIds == "yes") {
 				gMap.selectAll("text")
-					.data(zones)
-			  	  .enter().append("text")
+						.data(zones)
+		  	  .enter()
+						.append("text")
 			  		.attr("id", "ids")
-					.attr("x", function(d) {
-						return projectionFunc([d.properties.LON, d.properties.LAT])[0];
-					})
-					.attr("y", function(d) {
-						return projectionFunc([d.properties.LON, d.properties.LAT])[1];
-					})
-					.text(function(d) {
-						return d.properties.ZONE;
-					});
+						.attr("fill", zoneTextColor)
+						.attr("x", function(d) {
+							return projectionFunc([d.properties.LON, d.properties.LAT])[0];
+						})
+						.attr("y", function(d) {
+							return projectionFunc([d.properties.LON, d.properties.LAT])[1];
+						})
+						.text(function(d) {
+							return d.properties.ZONE;
+						});
 			}
 		});
-	
 
-				
 
-		//////////////////////////////////////////////////////////////
+
+
+		////////////////////////////////////////
 		///				main vis 								//////
-		///////////////////////////////////////////////////////////////
+		////////////////////////////////////////
 		//main loop
 		var index = 0;
 		main();
@@ -299,51 +361,53 @@
 			//put all the vis on the svg, make the heatmap, cycle through
 			//changing opacity on the categories selected (default all)
 			//get the data and run initialize() for each category
-			var offlineData = "offlineData.json";
-			//var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
-			//d3.json(dataUrl, function(error, data) {
-			d3.json(offlineData, function(error, data) {
+			// var offlineData = "offlineData.json";
+			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
+			d3.json(dataUrl, function(error, data) {
+			// d3.json(offlineData, function(error, data) {
 				if (error) { console.log("There was an error loading the data." + error); }
 
 				for (var i = 0; i < categories.length; i++) {
 					initialize(data.stations, categories[i])
 				}
-			});
 
-	    	//label cities if asked (last so above?)
-	    	if (showCities=="yes") {
-	    		d3.json("citiesJson.json", function(error, data) {
-	    			if (error) { console.log("There was an error loading the cities data: " + error); }
-	    			
-	    			var cities = data.cities;
-	    
-	    			gVis.selectAll("circle.cities")
-	    				.data(cities)
-	    			  .enter()
-	    				.append("circle")
-	    				.attr("class", "cities")
-	    				.attr("cx", function(d) {
-                        	return projectionFunc( [d.LON, d.LAT] )[0];
-                        })
-                        .attr("cy", function(d) {
-                            return projectionFunc( [d.LON, d.LAT] )[1];
-                        })
-                        .attr("r", 3);
-                 
-                 	gVis.selectAll("text.cities")
-                        .data(cities)
-                      .enter()
-                        .append("text")             
-	    				.attr("class", "cities")
-                        .attr("x", function(d) {
-                            return projectionFunc( [d.LON, d.LAT] )[0] + 5;
-                        })
-                        .attr("y", function(d) {
-                            return projectionFunc( [d.LON, d.LAT] )[1];
-                        })
-                        .text(function(d) { return d.name; });
-	    		});
-	    	}
+				//label cities if asked (put in this block so it does it after data is loaded
+				if (showCities=="yes") {
+					d3.json("citiesJson.json", function(error, data) {
+						if (error) { console.log("There was an error loading the cities data: " + error); }
+
+						var cities = data.cities;
+
+						gVis.selectAll("circle.cities")
+								.data(cities)
+							.enter()
+								.append("circle")
+								.attr("class", "cities")
+								.attr("cx", function(d) {
+									return projectionFunc( [d.LON, d.LAT] )[0];
+								})
+								.attr("cy", function(d) {
+										return projectionFunc( [d.LON, d.LAT] )[1];
+								})
+								.attr("r", 3)
+								.attr("fill", cityTextColor);
+
+						gVis.selectAll("text.cities")
+								.data(cities)
+							.enter()
+								.append("text")
+								.attr("class", "cities")
+								.attr("x", function(d) {
+									return projectionFunc( [d.LON, d.LAT] )[0] + 5;
+								})
+								.attr("y", function(d) {
+									return projectionFunc( [d.LON, d.LAT] )[1];
+								})
+								.attr("fill", cityTextColor)
+								.text(function(d) { return d.name; });
+					});
+				}
+			});
 
 			makeLegend();
 			cycle();
@@ -551,6 +615,7 @@
 					.attr("id", name)
 					.attr("x", categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", catTextColor)
 					.text(name)
 					.style("opacity", 0);
 
@@ -568,6 +633,7 @@
 					.attr("id", name)
 					.attr("x", 2*categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", minTextColor)
 					.text(min)
 					.style("opacity", 0);
 
@@ -584,6 +650,7 @@
 					.attr("id", name)
 					.attr("x", 3*categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", maxTextColor)
 					.text(max)
 					.style("opacity", 0);
 
