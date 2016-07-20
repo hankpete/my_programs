@@ -41,7 +41,7 @@
 			font-size: 15px;
 		}
 
-		.category-text {
+		.category-text, .loading {
 			font-family: Roboto;
 			font-size: 36px;
 		}
@@ -63,15 +63,15 @@
 					"RawsRelh13", "RawsRelh14"];
       $catsLength = count($cats);
 
-	  echo "<p>";
       for ($i = 0; $i < $catsLength; $i++)
       {
         if( $_GET[ $cats[$i] ] == "on" )
         {
+					echo "<p>";
           echo htmlspecialchars($cats[$i]);
-        }
+					echo "</p>";
+				}
       }
-	  echo "</p>";
     ?>
 	</div>
 
@@ -206,19 +206,11 @@
 
 		//set categories variable from the form
 		var div = document.getElementById("category-div");
-		var myData = div.children[0].textContent;
-
-		var allCategories = ["elev", "Temp", "TempC", "Dewp", "Relh",
-				"Winds", "SLP", "Altimeter", "Visibility", "TempHi24",
-				"TempLo24", "RelhHi24", "RelhLo24", "GustHi24",
-				"RawsTemp12", "RawsTemp13", "RawsTemp14", "RawsRelh12",
-				"RawsRelh13", "RawsRelh14"];
+		var myData = div.children;
 
 		var categories = [];
-		for (var i = 0; i < allCategories.length; i++) {
-			if (myData.indexOf(allCategories[i]) >= 0) {
-				categories.push(allCategories[i]);
-			}
+		for (var i = 0; i < myData.length; i++) {
+			categories.push(myData[i].textContent);
 		}
 
 		//set radius
@@ -276,6 +268,7 @@
 		//set catTextColor
 		div = document.getElementById("catTextColor-div");
 		var catTextColor = div.children[0].textContent;
+
 
 
 		//set up variables and functions we will need
@@ -352,6 +345,9 @@
 		////////////////////////////////////////
 		///				main vis 								//////
 		////////////////////////////////////////
+
+
+
 		//main loop
 		var index = 0;
 		main();
@@ -360,6 +356,18 @@
 		function main() {
 			//put all the vis on the svg, make the heatmap, cycle through
 			//changing opacity on the categories selected (default all)
+
+			//show "loading" while they wait
+			gMap.selectAll("text.loading")
+					.data(["Loading..."])
+				.enter()
+					.append("text")
+					.attr("class", "loading")
+					.attr("x", width/15)
+					.attr("y", height/15)
+					.attr("fill", catTextColor)
+					.text(function(d) { return d; });
+
 			//get the data and run initialize() for each category
 			// var offlineData = "offlineData.json";
 			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
@@ -408,6 +416,15 @@
 					});
 				}
 			});
+
+			//take away loading
+			gMap.selectAll("text.loading")
+					.data([])
+				.exit()
+				.transition()
+					.duration(10000)
+					.style("opacity", 0)
+					.remove();
 
 			makeLegend();
 			cycle();
