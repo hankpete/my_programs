@@ -41,8 +41,9 @@
 	var inactiveRad = 5;
 	var activeRad = 7;
 
+	var scale = 4000;
 	var projectionFunc = d3.geo.mercator()	//world
-		.scale(4000)
+		.scale(scale)
 		.center([-119.6, 36.3])	//hnx coords
 		.translate([width/6, height* 2/3]);
 
@@ -85,35 +86,43 @@
 	        .attr("d", pathFunc);
 
 	});
-
-	//set up the data
-	var camLinks = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"];
-	var camJson = [];
+	
+	//global for cycles
+	var camsNum = 0;
+	var debug;
 	d3.json("offlineData.json", function(error, data) {
 		//set up the data and put the dots down
 		if (error) { console.log("An error has occured:" + error); }
 
+		//debug = data;
+
+		//set up the data
+		var camLinks = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"];
+		var camJson = [];
 		var stations = data.stations;
 		for (var i = 0; i < camLinks.length; i++) {
 			camJson.push( { "camLink" : camLinks[i], "LAT" : stations[i].latitude, "LON" : stations[i].longitude } );
+			camsNum += 1;
 		}
-
-    gMap.selectAll("circle.camPoints")
-    	.data(camJson)
-      .enter()
-    	.append("circle")
-    	.classed("camPoints", true)
-			.attr("id", function(d, i) {
-				return "cam-" + i;
-			})
-    	.attr("cx", function(d) {
-    		return projectionFunc( [d.LON, d.LAT] )[0];
-    	})
-    	.attr("cy", function(d) {
-    		return projectionFunc( [d.LON, d.LAT] )[1];
-    	})
-    	.attr("r", inactiveRad)
-    	.attr("fill", inactiveCirc);
+		
+		debug = camJson;
+		//
+		//initialize all of the vis stuff
+		//
+        gMap.selectAll("circle.camPoints")
+        	.data(camJson)
+          .enter()
+        	.append("circle")
+        	.classed("camPoints", true)
+			.attr("id", function(d, i) { return "pt" + i; })
+        	.attr("cx", function(d) {
+        		return projectionFunc( [d.LON, d.LAT] )[0];
+        	})
+        	.attr("cy", function(d) {
+        		return projectionFunc( [d.LON, d.LAT] )[1];
+        	})
+        	.attr("r", inactiveRad)
+        	.attr("fill", inactiveCirc);
 
 		//put cams on svg transparent
 		gCams.selectAll("image.cam")
@@ -121,15 +130,51 @@
 			.enter()
 				.append("image")
 				.classed("cam", true)
-				.attr("id", function(d, i) {
-					return "cam-" + i;
-				})
+				.attr("id", function(d, i) { return "vis" + i; })
 				.attr("x", width / 3)
 				.attr("y", height / 10)
 				.attr("xlink:href", function(d) { return d.camLink; })
 				.attr("width", width / 2)
 				.attr("height", height / 2)
 				.style("opacity", 0);
+
+		//some descriptive text
+		var textX = width / 10;
+		var textY = height / 10;
+		gCams.selectAll("text.title")
+			.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
+		  .enter()
+		  	.append("text")
+			.classed("cam", true)
+			.attr("id", function(d, i) { return "vis" +i; })
+			.attr("x", textX)
+			.attr("y", textY)
+			.attr("fill", "white")
+			.attr("font-family", "Roboto")
+			.attr("font-size", 30)
+			.text(function(d, i) { return "Data for cam #" + (i + 1) + ":"; })
+			.style("opacity", 0);
+
+		var cats = ["elev", "Temp", "Relh"];
+		var newY = textY;
+		var newX = textX + 10;
+		for (var j = 0; j < cats.length; j++) {
+			newY += 30;
+		    gCams.selectAll("text." + cats[i])
+		    	.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
+		      .enter()
+		      	.append("text")
+		    	.classed(cats[j], true)
+		    	.attr("id", function(d, i) { return "vis" + i; })
+		    	.attr("x", newX)
+				.attr("y", newY) 
+		    	.attr("fill", "white")
+				.attr("font-family", "Roboto")
+				.attr("font-size", 20)
+		    	.text(function(d) { return cats[j] + ": " + eval("d." + cats[j]); })
+		    	.style("opacity", 0);
+		}
+
 	});
 
 	//run
@@ -140,7 +185,6 @@
 
 
 	function main() {
-		initialize();
 		cycle();
 		setInterval(function() {
 			cycle();
@@ -148,47 +192,31 @@
 	}
 
 
-	function initialize() {
-		//put cams on svg transparent
-		gCams.selectAll("image.cam")
-			.data(camJson)
-		  .enter()
-			.append("image")
-			.classed("cam", true)
-			.attr("x", width / 3)
-			.attr("y", height / 10)
-			.attr("xlink:href", function(d) { return d.camLink; })
-			.attr("width", width / 2)
-			.attr("height", height / 2)
-			.style("opacity", 0);
-	}
-
-
 	function cycle() {
 		//heighlight where it is and put the cam up
 		var next = index;
 		var previous = index-1;
-		var camsNum = camJson.length;
-
+		if (previous == -1) {
+			previous = 0;
+		}	
 		//previous cam
-		gMap.selectAll( "circle#cam-" + (previous % camsNum) )
+		gMap.selectAll( "circle#pt" + (previous % camsNum) )
 			.transition()
 				.duration(transitionTime)
 				.attr("fill", inactiveCirc)
 				.attr("r", inactiveRad);
-
-		gCams.selectAll( "image#cam-" + (previous % camsNum) )
+		gCams.selectAll( "#vis" + (previous % camsNum) )
 			.transition()
 				.duration(transitionTime)
 				.style("opacity", 0);
 
 		//next cam
-		gMap.selectAll( "circle#cam-" + (next % camsNum) )
+		gMap.selectAll( "circle#pt" + (next % camsNum) )
 			.transition()
 				.duration(transitionTime)
 				.attr("fill", activeCirc)
 				.attr("r", activeRad);
-		gCams.selectAll( "image#cam-" + (next % camsNum) )
+		gCams.selectAll( "#vis" + (next % camsNum) )
 			.transition()
 				.duration(transitionTime)
 				.style("opacity", 1);
@@ -198,7 +226,38 @@
 	}
 
 
-
+ 	function zoomToPoint(coords) {
+		//this function picks the next zone and centers the map on it
+		  
+		var point = projectionFunc(coords);
+	    var scaleFactor = 5;    //how far to zoom
+		 
+	    var translate = projectionFunc.translate();
+		 
+		projectionFunc
+			.translate([translate[0] - point[0] + width/2, translate[1] - point[1] + height/2])
+		    .scale(scale * scaleFactor);
+		 
+		//transition to new transform
+		gMap.selectAll("path")
+		  .transition()
+		    .duration(transitionTime)
+		    .attr("d", pathFunc);
+		 
+		//make borders lighter
+		gMap.selectAll("#zone-borders")
+		    .style("stroke-width", 1.5/scaleFactor + "px");
+		
+		gMap.selectAll("circle")
+		  .transition()
+		  	.duration(transitionTime)
+			.attr("cx", function(d) {
+		        return projectionFunc([d.LON, d.LAT])[0];
+  			})
+		    .attr("cy", function(d) {
+		        return projectionFunc([d.LON, d.LAT])[1];
+		    });
+	}
 </script>
 </body>
 </html>

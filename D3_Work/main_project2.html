@@ -81,7 +81,7 @@
 		var orderedZoneNumbers = [];
 		var index = 0;
 		var dt = 2000;
-		// var debug;
+		var debug;
 
 		d3.json("hnxSaZones.json", function(error, hnxJson) {
 			if (error) { console.log("there was an error loading the data" + error); }
@@ -93,7 +93,7 @@
 			//put the zone numbers in order
 			zones.sort(function(a, b) { return a.properties.ZONE - b.properties.ZONE; })
 
-			// debug = zones;
+			debug = zones;
 
 			gMap.selectAll("path")
 					.data(zones)
@@ -112,7 +112,7 @@
 					.attr("d", pathFunc);
 
 			//now that we have basic map set up, send data to main func
-			main(zones);
+			//main(zones);
 		});
 
 
