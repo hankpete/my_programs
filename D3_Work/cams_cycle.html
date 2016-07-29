@@ -157,18 +157,27 @@
 			.attr("font-size", 30)
 			.text(function(d, i) { return "Data for cam #" + (i + 1) + ":"; })
 			.style("opacity", 0);
-
+		gCams.selectAll("rect.cats")
+		    	.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
+			.enter()
+				.append("rect")
+				.classed("cats", true)
+				.attr("id", function(d, i) { return "stats" + i; })
+				.attr("x", textX - 10)
+				.attr("y", textY - 10)
+				.attr("width", 100)
+				.attr("height", 50); 
 		var cats = ["elev", "Temp", "Relh"];
 		var newY = textY;
 		var newX = textX + 10;
 		for (var j = 0; j < cats.length; j++) {
 				newY += 30;
-		    gCams.selectAll("text." + cats[i])
+		    gCams.selectAll("text." + cats[j])
 		    	.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
 		      .enter()
 		      	.append("text")
 		    	.classed(cats[j], true)
-		    	.attr("id", function(d, i) { return "vis" + i; })
+		    	.attr("id", function(d, i) { return "stats" + i; })
 		    	.attr("x", newX)
 				.attr("y", newY)
 		    	.attr("fill", "white")
@@ -178,14 +187,14 @@
 		    	.style("opacity", 0);
 		}
 
+		//run
 		main(camJson);
 	});
 
-	//run
+	//globals
 	var index = 0;
 	var transitionTime = 2000;
-	var delay = 1000;
-	// main(camJson);
+	var delay = 2000;
 
 
 	function main(data) {
@@ -205,38 +214,54 @@
 		}
 		var camsNum = data.length;
 
+		//keep track of transitions 
+		var wait = 0;
+		var nextDuration = 0;
+
+
 		//previous cam go away
+		nextDuration = transitionTime;
 		gMap.selectAll( "circle#pt" + (previous % camsNum) )
 			.transition()		//1
-				.duration(transitionTime)
+				.duration(nextDuration)
 				.attr("fill", inactiveCirc)
 				.attr("r", inactiveRad);
 		gCams.selectAll( "#vis" + (previous % camsNum) )
 			.transition()		//1
-				.duration(transitionTime)
+				.duration(nextDuration)
 				.style("opacity", 0);
+		wait += nextDuration;
 
 		//after that, go to next point
 		var location = [ data[next % camsNum].LON, data[next % camsNum].LAT ];
-
+		nextDuration = transitionTime;
 		gMap.selectAll( "circle#pt" + (next % camsNum) )
 			.transition()		//2
-				.delay(transitionTime)	//after transition 1
-				.duration(transitionTime)
+				.delay(wait)	//after transition 1
+				.duration(nextDuration)
 				.attr("fill", activeCirc)
 				.attr("r", activeRad);
+		zoomToPoint(location, wait);	//2
+		wait += nextDuration;
 
-		zoomToPoint(location, transitionTime);	//2
-
-		///////show some data while thereeee ///////
+		//show text while there
+		nextDuration = delay;
+		gCams.selectAll("#stats" + (next % camsNum) )
+			.transition()	//3
+				.delay(wait) 	//after 2
+				.duration(nextDuration)
+				.style("opacity", 1);
+		wait += nextDuration;
 
 		//go back to regular view and show cam
-		reset(3 * transitionTime) //3
+		reset(wait) //4
+		nextDuration = transitionTime;
 		gCams.selectAll( "#vis" + (next % camsNum) )
-			.transition()	//3
-				.delay(transitionTime*3)	//after showing data while zoomed
-				.duration(transitionTime)
+			.transition()	//4
+				.delay(wait)	//after 3
+				.duration(nextDuration)
 				.style("opacity", 1);
+		wait += nextDuration;
 
 		//!!!!
 		index++;
