@@ -94,7 +94,7 @@
 	});
 
 
-	var debug;
+	// var debug;
 	d3.json("offlineData.json", function(error, data) {
 		//set up the data and put the dots down
 		if (error) { console.log("An error has occured:" + error); }
@@ -103,11 +103,14 @@
 		var camLinks = ["1.jpg", "2.jpg", "3.jpg", "4.jpg", "5.jpg"];
 		var camJson = [];
 		var stations = data.stations;
+		var stationsList = [];
 		for (var i = 0; i < camLinks.length; i++) {
 			camJson.push( { "camLink" : camLinks[i], "LAT" : stations[i].latitude, "LON" : stations[i].longitude } );
 		}
-
-		debug = camJson;
+		for (var i = 0; i < camLinks.length; i++) {
+			stationsList.push(stations[i]);
+		}
+		// debug = camJson;
 
 		//
 		//initialize all of the vis stuff
@@ -144,36 +147,39 @@
 		//some descriptive text
 		var textX = xScale(10);
 		var textY = yScale(10);
-		gCams.selectAll("text.title")
-			.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
-		  .enter()
-		  	.append("text")
-			.classed("cam", true)
-			.attr("id", function(d, i) { return "vis" +i; })
-			.attr("x", textX)
-			.attr("y", textY)
-			.attr("fill", "white")
-			.attr("font-family", "Roboto")
-			.attr("font-size", 30)
-			.text(function(d, i) { return "Data for cam #" + (i + 1) + ":"; })
-			.style("opacity", 0);
+		var cats = ["elev", "Temp", "TempC", "Dewp", "Relh",
+				"Winds", "Visibility", "TempHi24",
+				"TempLo24", "RelhHi24", "RelhLo24"];
 		gCams.selectAll("rect.cats")
-		    	.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
+					.data(stationsList)
 			.enter()
 				.append("rect")
 				.classed("cats", true)
 				.attr("id", function(d, i) { return "stats" + i; })
-				.attr("x", textX - 10)
-				.attr("y", textY - 10)
-				.attr("width", 100)
-				.attr("height", 50); 
-		var cats = ["elev", "Temp", "Relh"];
+				.attr("x", textX - 30)
+				.attr("y", textY - 35)
+				.attr("width", 275)
+				.attr("height", 25*cats.length)
+				.style("opacity", 0);
+		gCams.selectAll("text.title")
+			.data(stationsList)
+		  .enter()
+		  	.append("text")
+			.classed("cam", true)
+			.attr("id", function(d, i) { return "stats" +i; })
+			.attr("x", textX)
+			.attr("y", textY)
+			.attr("fill", "white")
+			.attr("font-family", "Roboto")
+			.attr("font-size", 20)
+			.text(function(d, i) { return "Data for cam #" + (i + 1) + ":"; })
+			.style("opacity", 0);
 		var newY = textY;
 		var newX = textX + 10;
 		for (var j = 0; j < cats.length; j++) {
-				newY += 30;
+				newY += 20;
 		    gCams.selectAll("text." + cats[j])
-		    	.data([ stations[0], stations[1], stations[2], stations[3], stations[4] ])
+		    	.data(stationsList)
 		      .enter()
 		      	.append("text")
 		    	.classed(cats[j], true)
@@ -182,7 +188,7 @@
 				.attr("y", newY)
 		    	.attr("fill", "white")
 				.attr("font-family", "Roboto")
-				.attr("font-size", 20)
+				.attr("font-size", 15)
 		    	.text(function(d) { return cats[j] + ": " + eval("d." + cats[j]); })
 		    	.style("opacity", 0);
 		}
@@ -206,7 +212,7 @@
 
 
 	function cycle(data) {
-		//heighlight where it is and put the cam up
+		//do the main transitions
 		var next = index;
 		var previous = index-1;
 		if (previous == -1) {
@@ -214,7 +220,7 @@
 		}
 		var camsNum = data.length;
 
-		//keep track of transitions 
+		//keep track of transitions
 		var wait = 0;
 		var nextDuration = 0;
 
@@ -227,6 +233,10 @@
 				.attr("fill", inactiveCirc)
 				.attr("r", inactiveRad);
 		gCams.selectAll( "#vis" + (previous % camsNum) )
+			.transition()		//1
+				.duration(nextDuration)
+				.style("opacity", 0);
+		gCams.selectAll( "#stats" + (previous % camsNum) )
 			.transition()		//1
 				.duration(nextDuration)
 				.style("opacity", 0);
