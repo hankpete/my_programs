@@ -15,18 +15,11 @@
 			width: 100%;
 			height: 100%;
 		}
-		.background {
-			fill: #fff;
-		}
 		#zones.active {
 			fill: #aaf;
 		}
-		#zones {
-			fill: #aaa;
-		}
 		#zone-borders {
 		  fill: none;
-		  stroke: #fff;
 		  stroke-width: 1px;
 		  stroke-linejoin: round;
 		  stroke-linecap: round;
@@ -34,18 +27,194 @@
 	  }
 		.category-text {
 			font-family: Roboto;
-			fill: black;
 			font-size: 36px;
 		}
 		.min-text, .max-text {
 			font-family: Roboto;
-			fill: black;
 			font-size: 15px;
 		}
 	</style>
 </head>
 <body>
+	<div id="category-div" style="display: none;">
+    <?php
+      $cats = ["elev", "Temp", "TempC", "Dewp", "Relh",
+					"Winds", "SLP", "Altimeter", "Visibility", "TempHi24",
+					"TempLo24", "RelhHi24", "RelhLo24", "GustHi24",
+					"RawsTemp12", "RawsTemp13", "RawsTemp14", "RawsRelh12",
+					"RawsRelh13", "RawsRelh14"];
+      $catsLength = count($cats);
+
+      for ($i = 0; $i < $catsLength; $i++)
+      {
+        if( $_GET[ $cats[$i] ] == "on" )
+        {
+					echo "<p>";
+          echo htmlspecialchars($cats[$i]);
+					echo "</p>";
+				}
+      }
+    ?>
+	</div>
+
+	<div id="circleOpacity-div" style="display: none;">
+		<?php
+			$circleOpacity = $_GET[ "circleOpacity" ];
+			echo "<p>";
+			echo htmlspecialchars($circleOpacity);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="dt-div" style="display: none;">
+		<?php
+			$dt = $_GET[ "dt" ];
+			echo "<p>";
+			echo htmlspecialchars($dt);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="bgColor-div" style="display: none;">
+		<?php
+			$bgColor = $_GET[ "bgColor" ];
+			echo "<p>";
+			echo htmlspecialchars($bgColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="zoneColor-div" style="display: none;">
+		<?php
+			$zoneColor = $_GET[ "zoneColor" ];
+			echo "<p>";
+			echo htmlspecialchars($zoneColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="zoneColorActive-div" style="display: none;">
+		<?php
+			$zoneColorActive = $_GET[ "zoneColorActive" ];
+			echo "<p>";
+			echo htmlspecialchars($zoneColorActive);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="borderColor-div" style="display: none;">
+		<?php
+			$borderColor = $_GET[ "borderColor" ];
+			echo "<p>";
+			echo htmlspecialchars($borderColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="minTextColor-div" style="display:none">
+		<?php
+			$minTextColor = $_GET[ "minTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($minTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="maxTextColor-div" style="display:none">
+		<?php
+			$maxTextColor = $_GET[ "maxTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($maxTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="catTextColor-div" style="display:none">
+		<?php
+			$catTextColor = $_GET[ "catTextColor" ];
+			echo "<p>";
+			echo htmlspecialchars($catTextColor);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="radiusMin-div" style="display:none">
+		<?php
+			$radiusMin = $_GET[ "radiusMin" ];
+			echo "<p>";
+			echo htmlspecialchars($radiusMin);
+			echo "</p>";
+		?>
+	</div>
+
+	<div id="radiusMax-div" style="display:none">
+		<?php
+			$radiusMax = $_GET[ "radiusMax" ];
+			echo "<p>";
+			echo htmlspecialchars($radiusMax);
+			echo "</p>";
+		?>
+	</div>
+
 	<script>
+		//begin by getting the variables put into DOM by form/php
+
+		//set categories variable from the form
+		var div = document.getElementById("category-div");
+		var myData = div.children;
+
+		var categories = ["BUFFER"];
+		for (var i = 0; i < myData.length; i++) {
+			categories.push(myData[i].textContent);
+		}
+		categories.push("BUFFER");
+
+		//set opacity
+		div = document.getElementById("circleOpacity-div");
+		var circleOpacity = parseFloat(div.children[0].textContent);
+
+		//set dt
+		div = document.getElementById("dt-div");
+		var dt = parseInt(div.children[0].textContent);
+
+		//set bgColor
+		div = document.getElementById("bgColor-div");
+		var bgColor  = div.children[0].textContent;
+
+		//set zoneColor
+		div = document.getElementById("zoneColor-div");
+		var zoneColor  = div.children[0].textContent;
+
+		//set zoneColorActive
+		div = document.getElementById("zoneColorActive-div");
+		var zoneColorActive  = div.children[0].textContent;
+
+		//set borderColor
+		div = document.getElementById("borderColor-div");
+		var borderColor = div.children[0].textContent;
+
+		//set minTextColor
+		div = document.getElementById("minTextColor-div");
+		var minTextColor = div.children[0].textContent;
+
+		//set maxTextColor
+		div = document.getElementById("maxTextColor-div");
+		var maxTextColor = div.children[0].textContent;
+
+		//set catTextColor
+		div = document.getElementById("catTextColor-div");
+		var catTextColor = div.children[0].textContent;
+
+		//set radiusMin
+		div = document.getElementById("radiusMin-div");
+		var radiusMin = parseFloat(div.children[0].textContent);
+
+		//set radiusMax
+		div = document.getElementById("radiusMax-div");
+		var radiusMax = parseFloat(div.children[0].textContent);
+
+
+
 		//set up variables and functions we will need
 		var width = window.innerWidth;
 		var height = window.innerHeight;
@@ -68,7 +237,8 @@
 			.attr("x", 0)
 			.attr("y", 0)
 			.attr("width", width)
-			.attr("height", height);
+			.attr("height", height)
+			.attr("fill", bgColor);
 
 		//setup map on bot
 		var gMap = svg.append("g")
@@ -82,8 +252,7 @@
 		var zoneNumbers = [];
 		var orderedZoneNumbers = [];
 		var index = 0;
-		var dt = 2000;
-		var debug;
+		// var debug;
 
 		d3.json("hnxSaZones.json", function(error, hnxJson) {
 			if (error) { console.log("there was an error loading the data" + error); }
@@ -95,19 +264,21 @@
 			//put the zone numbers in order
 			zones.sort(function(a, b) { return a.properties.ZONE - b.properties.ZONE; })
 
-			debug = zones;
+			// debug = zones;
 
 			gMap.selectAll("path")
 					.data(zones)
 				.enter()
 					.append("path")
 					.attr("id", "zones")
+					.attr("fill", zoneColor)
 					.attr("d", pathFunc);
 
 			//make borders separately for better transitions etc
 			gMap.append("path")
 					.datum(borders)
 					.attr("id", "zone-borders")
+					.attr("stroke", borderColor)
 					.attr("d", pathFunc);
 
 			//now that we have basic map set up, send data to main func
@@ -116,8 +287,7 @@
 
 
 		//globals:
-		var categories = ["BUFFER", "elev", "Temp", "TempC", "Dewp", "Relh", "BUFFER"];
-		var timeAtZone = 1000 * categories.length;
+		var timeAtZone = dt * categories.length;
 		var timePerData = timeAtZone/(categories.length);
 		var dataChangeTransition = timePerData/2;
 		var i = 0;
@@ -129,8 +299,8 @@
 			//and cycle through each zone
 
 			//get the data and run initialize() for each category
-			// var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
-			var dataUrl = "offlineData.json";
+			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
+			// var dataUrl = "offlineData.json";
 			d3.json(dataUrl, function(error, data) {
 				if (error) { console.log("There was an error loading the data." + error); }
 
@@ -201,7 +371,13 @@
 
 			//change fill and transition to new transform
 			gMap.selectAll("path")
-					.classed("active", centered && function(d) { return d === centered; });
+					.attr("fill", function(d) {
+						if (centered===d) {
+							return zoneColorActive;
+						} else {
+							return zoneColor;
+						}
+					});
 			gMap
 				.transition()
 					.duration(timePerData)
@@ -229,7 +405,11 @@
 					.style("opacity", 0);
 
 
-			svg.selectAll("#" + nextCategory)		//below
+			gMap.selectAll("#" + nextCategory)		//below circs
+				.transition()
+					.duration(dataChangeTransition)
+					.style("opacity", circleOpacity);
+			gVis.selectAll("#" + nextCategory)		//below text
 				.transition()
 					.duration(dataChangeTransition)
 					.style("opacity", 1);
@@ -303,7 +483,7 @@
 
 			var radiusScale =	d3.scale.linear()
 							.domain([min, max])
-							.range([1, 5]);
+							.range([radiusMin, radiusMax]);
 
 			//add data map (for zoom) with class 'name' and opacity 0
 			gMap.selectAll("circle." + name)
@@ -326,7 +506,7 @@
 					})
 					.attr("r", function(d) {
 						var r = radiusScale( eval("d." + name) );
-						if (r <= 5 && r >= 1) {
+						if (r <= radiusMax && r >= radiusMin) {
 							return r;
 						} else {
 							return 0;
@@ -356,6 +536,7 @@
 					.attr("id", name)
 					.attr("x", categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", catTextColor)
 					.text(name)
 					.style("opacity", 0);
 
@@ -368,6 +549,7 @@
 					.attr("id", name)
 					.attr("x", 2*categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", minTextColor)
 					.text(min)
 					.style("opacity", 0);
 
@@ -379,6 +561,7 @@
 					.attr("id", name)
 					.attr("x", 3*categoryTextWidth)
 					.attr("y", textHeight)
+					.attr("fill", maxTextColor)
 					.text(max)
 					.style("opacity", 0);
 		}
