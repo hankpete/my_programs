@@ -4,6 +4,7 @@
 	<meta charset="utf-8">
 	<title>D3 Test</title>
 	<script src="d3/d3.min.js"></script>
+	<script src="d3/d3-queue.js"></script>
 	<script src="d3/topojson.min.js"></script>
 	<style>
 		* {
@@ -302,12 +303,12 @@
 		var width = window.innerWidth,
 			height = window.innerHeight;
 
-		//pause on space button hit
+		//pause 'p' button hit
 		d3.select("body")
 				.on("keydown", function() {
-						console.log(d3.event.keyCode);
-						if (d3.event.keyCode == 40) {
-								pause()
+						d3.event.preventDefault();
+						if (d3.event.keyCode == 80) {
+							pause();
 						}
 					}
 				);
@@ -383,17 +384,19 @@
 		///				main vis 								//////
 		////////////////////////////////////////
 
+		//initialize things before main
+		d3.queue()
+				.defer(useJsonData)
+				.await(function(error) {
+					if (error) {
+						console.log("There was an error in the queue: " + error);
+					}
+					main();
+				});
 
 
-		//main loop
-		var index = 0;
-		var isPaused = false;
-		main();
-
-
-		function main() {
-			//put all the vis on the svg, make the heatmap, cycle through
-			//changing opacity on the categories selected (default all)
+		function useJsonData(callback) {
+			//get the json data and initialize all the circles before main()
 
 			//show "loading" while they wait
 			gMap.selectAll("text.loading")
@@ -406,11 +409,9 @@
 					.attr("fill", catTextColor)
 					.text(function(d) { return d; });
 
-			//get the data and run initialize() for each category
-			// var offlineData = "offlineData.json";
+			// var dataUrl = "offlineData.json";
 			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
 			d3.json(dataUrl, function(error, data) {
-			// d3.json(offlineData, function(error, data) {
 				if (error) { console.log("There was an error loading the data." + error); }
 
 				for (var i = 0; i < categories.length; i++) {
@@ -463,6 +464,31 @@
 					.duration(10000)
 					.style("opacity", 0)
 					.remove();
+
+			//callback for queue
+			callback(null);
+		}
+
+
+		var index = 0;
+		var isPaused = false;
+		function main() {
+			//put all the vis on the svg, make the heatmap, cycle through
+			//changing opacity on the categories selected (default all)
+
+			//initialize pause
+			gVis.selectAll("text#pause")
+					.data(["Paused."])
+				.enter()
+					.append("text")
+					.attr("id", "pause")
+					.attr("x", width/15)
+					.attr("y", height/2)
+					.attr("font-size", 40 + "px")
+					.attr("font-family", "Roboto")
+					.attr("fill", "red")
+					.text(function(d) { return d; })
+					.style("opacity", 0);
 
 			makeLegend();
 			cycle();
@@ -677,8 +703,12 @@
 		function pause() {
 				if (isPaused) {
 					isPaused = false;
+					gVis.selectAll("text#pause")
+							.style("opacity", 0);
 				} else {
 					isPaused = true;
+					gVis.selectAll("text#pause")
+							.style("opacity", 1);
 				}
 		}
 	</script>

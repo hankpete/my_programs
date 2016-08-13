@@ -101,7 +101,7 @@
 		indexes.splice( rand, 1 );
 		svg.select("#pix" + j)
 			.transition().ease("linear")
-				.delay(t*i)
+				.delay(t*i + 1000)
 				.duration(t)
 				.attr("cx", function(d) { return d.cx + width/2 - img.width/2; })
 				.attr("cy", function(d) { return d.cy + 50; });
