@@ -303,15 +303,36 @@
 		var width = window.innerWidth,
 			height = window.innerHeight;
 
-		//pause 'p' button hit
+		//interactions:
 		d3.select("body")
 				.on("keydown", function() {
 						d3.event.preventDefault();
 						if (d3.event.keyCode == 80) {
+							//pause 'p' button hit
 							pause();
+						} else if (d3.event.keyCode == 39) {
+							//go to next on right arrow
+							var previous = (index - 1) % categories.length;
+							if (previous < 0) {
+								previous = categories.length + previous;
+							}
+							var previousCategory = categories[ previous ]
+							gVis.selectAll("#" + previousCategory)
+									.style("opacity", 0);
+							cycle();
+						} else if (d3.event.keyCode == 37) {
+							//go back on left arrow
+							var previous = (index - 1) % categories.length;
+							if (previous < 0) {
+								previous = categories.length + previous;
+							}
+							var previousCategory = categories[ previous ]
+							index -= 2;
+							gVis.selectAll("#" + previousCategory)
+									.style("opacity", 0);
+							cycle();
 						}
-					}
-				);
+					});
 
 		var projectionFunc = d3.geo.mercator()	//world
 			.scale(7000)
@@ -492,11 +513,9 @@
 
 			makeLegend();
 			cycle();
-			index++;
 			setInterval(function() {
 						if(!isPaused) {
 							cycle();
-							index++;
 						}
 					}, 2*dt + delay);
 		}
@@ -535,8 +554,16 @@
 		function cycle() {
 			//pick next data category, make it opacity 1 and the
 			//one before it opacity 0 in a smooth transition
-			var nextCategory = categories[index % categories.length];
-			var previousCategory = categories[(index-1) % categories.length];
+			var next = (index) % categories.length;
+			if (next < 0) {
+				next = categories.length + next;
+			}
+			var nextCategory = categories[ next ]
+			var previous = (index - 1) % categories.length;
+			if (previous < 0) {
+				previous = categories.length + previous;
+			}
+			var previousCategory = categories[ previous ]
 
 			gVis.selectAll("#" + previousCategory)		//above
 				.transition()
@@ -552,6 +579,8 @@
 				.transition()
 					.duration(dt)
 					.style("opacity", circleOpacity);
+
+			index++;
 		}
 
 
@@ -699,6 +728,7 @@
 					.text(max)
 					.style("opacity", 0);
 		}
+
 
 		function pause() {
 				if (isPaused) {
