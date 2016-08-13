@@ -302,6 +302,16 @@
 		var width = window.innerWidth,
 			height = window.innerHeight;
 
+		//pause on space button hit
+		d3.select("body")
+				.on("keydown", function() {
+						console.log(d3.event.keyCode);
+						if (d3.event.keyCode == 40) {
+								pause()
+						}
+					}
+				);
+
 		var projectionFunc = d3.geo.mercator()	//world
 			.scale(7000)
 			.center([-119.6, 36.3])	//hnx coords
@@ -377,6 +387,7 @@
 
 		//main loop
 		var index = 0;
+		var isPaused = false;
 		main();
 
 
@@ -457,8 +468,10 @@
 			cycle();
 			index++;
 			setInterval(function() {
-						cycle();
-						index++;
+						if(!isPaused) {
+							cycle();
+							index++;
+						}
 					}, 2*dt + delay);
 		}
 
@@ -661,7 +674,13 @@
 					.style("opacity", 0);
 		}
 
-
+		function pause() {
+				if (isPaused) {
+					isPaused = false;
+				} else {
+					isPaused = true;
+				}
+		}
 	</script>
 
 </body>
