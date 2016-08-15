@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>D3 Test</title>
+	<script src="d3/jquery-3.1.0.min.js"></script>
+</head>
+<body>
+<script>
+	// var url="ba-simple-proxy/ba-simple-proxy.php?url=http://api.mesowest.net/v2/stations/nearesttime?&token=04f0a7b44b8143f6b2f28475180b7dca&cwa=hnx&attime=201608151200&within=30,30&vars=air_temp&units=temp|F";
+	// var data;
+	// d3.json(url, function(e, d) {
+	// 	if (e) { console.log("e: " + e) }
+	// 	data = d;
+	// });
+
+	var data;
+	$.getJSON('http://api.mesowest.net/v2/stations/nearesttime?callback=?',
+  {
+	  // specify the request parameters here
+	  cwa:"hnx",
+	  within:1440,
+		vars:"air_temp,wind_speed",
+		units:"temp|F",
+	  token:"04f0a7b44b8143f6b2f28475180b7dca"
+
+  },
+  function (d) {
+		data = d;
+	});
+</script>
+</body>
+</html>
