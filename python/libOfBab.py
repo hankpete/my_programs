@@ -12,18 +12,34 @@ linesPerPage = 40
 lets = "qwertyuiopasdfghjklzxcvbnm,. "
 #lets = "אבגדהוזחטיכךלמםנןסעפףצץקרשת,. "
 numLets = len(lets)
-pageContent = ""
 
-# loop
-for i in range(pagesPerBook):
-    for j in range(linesPerPage):
-        for k in range(letsPerLine):
-            pageContent += lets[ r.randrange( numLets ) ]
-        pageContent += "\n"
-    pageContent += "\n\n\n------------------------------------------\n\n\n"
 
-# open file
-file = open("libOfBabPage.txt", "w")
-file.write(pageContent)
-file.close()
-        
+def makeBook():
+    pageContent = ""
+    # loop
+    for i in range(pagesPerBook):
+        for j in range(linesPerPage):
+            pageContent += str(i*(linesPerPage+6) + j + 1) + " "
+            for k in range(letsPerLine):
+                pageContent += lets[ r.randrange( numLets ) ]
+            pageContent += "\n"
+        pageContent += "\n\n\n------------------------------------------\n\n\n"
+
+    # open file
+    file = open("libOfBabPage.txt", "w")
+    file.write(pageContent)
+    file.close()
+
+def findWords():
+    # now to check for words
+    wordBank = ["hello", "goodbye", "future"]
+    with open("libOfBabPage.txt", "r") as f:
+        lines = f.readlines()
+    for word in wordBank:
+        for line in lines:
+            if word in line:
+                print(word + " can be found on line " + str(lines.index(line)))
+
+# run 
+#makeBook()
+findWords()
