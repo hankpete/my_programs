@@ -35,7 +35,8 @@ def findWords():
     wordBank = []
     with open("words.txt", "r") as f:
         for word in f:
-            if len(word)>4:
+            word = word.replace("\n", "")
+            if len(word)>=5:
                 wordBank.append(word)
                 
     with open("libOfBabPage.txt", "r") as f:
@@ -44,18 +45,35 @@ def findWords():
     for word in wordBank:
         for line in lines:
             if word in line:
-                print(word + " can be found on line " + str(lines.index(line)))
+                print(word + " can be found on line " + str(lines.index(line) + 1))
 
-def debug():
+def makeWordBook():
+    letterCount = 0
+    lineCount = 0
+    pageCount = 0
+    pageContent = ""
+    # loop
     wordBank = []
     with open("words.txt", "r") as f:
         for word in f:
-            if len(word)>4:
-                print(word.remove("\n")
-    
-    
-    
+            word = word.replace("\n", "")
+            wordBank.append(word)
+    while pageCount < 410:
+        newWord = wordBank[ r.randrange(len(wordBank)) ]
+        letterCount += len(newWord)
+        if letterCount > 80:
+            letterCount = 0
+            pageContent += "\n"
+            lineCount += 1
+        if lineCount > 40:
+            lineCount = 0
+            pageContent += "\n\n\n------------------------------------------\n\n\n"
+            pageCount += 1
+        pageContent += newWord + " "
+    with open("wordBook.txt", "w") as f:
+        f.write(pageContent)
+         
 # run 
 #makeBook()
 #findWords()
-debug()
+makeWordBook()
