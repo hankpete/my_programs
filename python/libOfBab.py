@@ -32,14 +32,30 @@ def makeBook():
 
 def findWords():
     # now to check for words
-    wordBank = ["hello", "goodbye", "future"]
+    wordBank = []
+    with open("words.txt", "r") as f:
+        for word in f:
+            if len(word)>4:
+                wordBank.append(word)
+                
     with open("libOfBabPage.txt", "r") as f:
         lines = f.readlines()
+ 
     for word in wordBank:
         for line in lines:
             if word in line:
                 print(word + " can be found on line " + str(lines.index(line)))
 
+def debug():
+    wordBank = []
+    with open("words.txt", "r") as f:
+        for word in f:
+            if len(word)>4:
+                print(word.remove("\n")
+    
+    
+    
 # run 
 #makeBook()
-findWords()
+#findWords()
+debug()
