@@ -299,8 +299,8 @@
 			//and cycle through each zone
 
 			//get the data and run initialize() for each category
-			var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
-			// var dataUrl = "offlineData.json";
+			//var dataUrl = "ba-simple-proxy/ba-simple-proxy.php?url=http://www.wrh.noaa.gov/hnx/JimBGmwXJList.php?extents=34.74,-121.4,38.36,-117.62&mode=native";
+			var dataUrl = "offlineData.json";
 			d3.json(dataUrl, function(error, data) {
 				if (error) { console.log("There was an error loading the data." + error); }
 

@@ -406,7 +406,7 @@
 		////////////////////////////////////////
 
 		//initialize things before main
-		d3.queue()
+		d3.queue(1)
 				.defer(useJsonData)
 				.await(function(error) {
 					if (error) {
@@ -414,7 +414,6 @@
 					}
 					main();
 				});
-
 
 		function useJsonData(callback) {
 			//get the json data and initialize all the circles before main()
