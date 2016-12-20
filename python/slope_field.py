@@ -9,9 +9,10 @@ MAX = 5
 NUM = 30
 
 # define some useful functions
-def F(x, y):
-        # dy/dx = F(x, y)
-        return (np.sqrt(np.abs(x))+ y/2)
+# def F(x, y):
+#         # dy/dx = F(x, y)
+#         return (np.sqrt(np.abs(x))+ y/2)
+F = lambda x,y: np.sin(x*y)
 
 def get_y_line(x, y1, x1, m):
         # y - y1 = m(x - x1)
@@ -35,12 +36,18 @@ for x in xvals:
                 m = F(x, y)
 
                 # fancy trig to get how far to go to have half of line = d
-                xdist = d*np.cos(np.arctan(m))
-                yval_right = get_y_line((x + xdist), y, x, m)
-                yval_left = get_y_line((x - xdist), y, x, m)
+                #xdist = d*np.cos(np.arctan(m))
+                #yval_right = get_y_line((x + xdist), y, x, m)
+                #yval_left = get_y_line((x - xdist), y, x, m)
+                #plt.plot([x-xdist, x+xdist], [yval_left, yval_right], "b-")
 
-                # now connect the dots and move to next
-                plt.plot([x-xdist, x+xdist], [yval_left, yval_right], "b-")
+                # or use vectors!
+                u = np.zeros(2)
+                u[0] = 1; u[1] = m
+                u /= np.sqrt(1 + m**2)
+                u *= d/2
+                plt.plot([x-u[0], x+u[0]], [y-u[1], y+u[1]], "b-") 
+
 
 # optionally plot a solution
 #xs = np.linspace(MIN, MAX, 1000)
