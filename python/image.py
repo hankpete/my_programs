@@ -14,24 +14,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-f = open("/home/hpeter/gits/my_programs/C++/A_julia.txt", 'r')
+f = open("/home/hpeter/gits/programs/C++/A_julia.txt", 'r')
 
 lines = f.readlines()
-Nx = len( lines[0] )
-Ny = len( lines ) 
-A = np.zeros( (Ny, Nx) )
-
+# first line of form "N = ..."
+string = lines[0]
+length = len(string)
+N = int( string[4:length] )
+A = np.zeros( (N, N) )
 
 i = 0
+j = 0
 for line in lines:
-    j = 0
-    for element in line:
-        if element == '1':
-            A[i][j] = 1
-            j += 1
-        elif element == '0':
-            j += 1
+    if line[0] == 'N':
+        continue
+    if i == N:
+        i = 0
+        j += 1
+    A[i][j] = int(line)
     i += 1
+
 f.close()
 
 
