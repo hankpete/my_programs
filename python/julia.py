@@ -37,6 +37,6 @@ for line in lines:
 f.close()
 
 
-plt.imshow(A)
+plt.imshow(A, cmap=plt.get_cmap("hot"))
 plt.show()
     

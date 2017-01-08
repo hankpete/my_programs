@@ -6,7 +6,7 @@ using namespace std;
 
 int main() 
 {
-
+	//This program does some calculations to make an array to plot
 	int N;
 	cout << "Array size, N: ";
 	cin >> N;
@@ -19,8 +19,9 @@ int main()
 	double Jb;
 	cout << "Imaginary part of complex constant, Jb: ";
 	cin >> Jb;
-	//convention: A[real][imaginary]
-	int A[N][N]; 
+
+	//use heap instead of stack:
+	int * A = new int[N * N];  //A points to 1D array
 		
 	int diverge = 1000;
 	int converge = 200;
@@ -34,7 +35,7 @@ int main()
 			a = -L + 2*i*L/N;
 			b = -L + 2*j*L/N;
 		
-			A[i][j] = 0;
+			A[i*N + j] = 0;
 
 			double r;
 			double t;
@@ -47,7 +48,7 @@ int main()
 				
 				if (r > diverge)
 				{
-					A[i][j] = c;
+					A[i*N + j] = c;
 					break;
 				}
 
@@ -69,14 +70,14 @@ int main()
 	ofstream file;
 	file.open("A_julia.txt");
 	file << "N = " << N << "\n";
-	for (int i = 0; i < N; i++)
+	for (int i = 0; i < N*N; i++)
 	{
-		for (int j = 0; j < N; j++) 
-		{
-			file << A[i][j] << "\n";
-		}
+		file << A[i] << "\n";
 	}
 	file.close();
+
+	//release memory 
+	delete[] A;
 
 	return 0;
 }
