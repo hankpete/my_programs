@@ -1,3 +1,7 @@
+# Show the beautiful Julia Set!
+#1-8-17
+
+###messing with imshow
 #import matplotlib.pyplot as plt
 #import numpy as np
 #
@@ -13,8 +17,15 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
-f = open("/home/hpeter/gits/programs/C++/A_julia.txt", 'r')
+#run the cpp code
+print("Calculations:\n")
+os.system("exec ../Cpp/julia_no_array")
+
+#read file it makes
+print("\nShowing Data...")
+f = open("../Cpp/A_julia.txt", 'r')
 
 lines = f.readlines()
 # first line of form "N = ..."
@@ -36,7 +47,7 @@ for line in lines:
 
 f.close()
 
-
+#show its data
 plt.imshow(A, cmap=plt.get_cmap("hot"))
 plt.show()
     
