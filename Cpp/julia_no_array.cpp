@@ -73,5 +73,11 @@ int main()
 	
 	file.close();
 
+	//run python code
+	system("python3 ../python/julia.py");
+
+	//delete file
+	system("rm A_julia.txt");
+
 	return 0;
 }

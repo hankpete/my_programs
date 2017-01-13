@@ -17,14 +17,8 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-import os
 
-#run the cpp code
-print("Calculations:\n")
-os.system("exec ../Cpp/julia_no_array")
-
-#read file it makes
-print("\nShowing Data...")
+#read file cpp code makes
 f = open("../Cpp/A_julia.txt", 'r')
 
 lines = f.readlines()

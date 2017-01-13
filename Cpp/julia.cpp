@@ -79,5 +79,11 @@ int main()
 	//release memory 
 	delete[] A;
 
+	//run python code
+	system("python3 ../python/julia.py");
+
+	//delete file
+	system("rm A_julia.txt");
+
 	return 0;
 }

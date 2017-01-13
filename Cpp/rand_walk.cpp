@@ -21,22 +21,20 @@ class Particle {
 		int get_y() { return y; }
 		void move() { // take a step
 			int r = rand();
-			r = r % 5; // mod 5 for the 5 cases 
+			r = r % 4; // mod 4 for the 4 cases 
 			switch (r) {
 				case 0:
-					x += 1;
+					x++;
 					break;
 				case 1:
-					x -= 1;
+					x--;
 					break;
 				case 2:
-					y += 1;
+					y++;
 					break;
 				case 3:
-					y -= 1;
+					y--;
 					break;
-				case 4: 
-					break; //stay in same spot
 			}
 		}
 };
@@ -63,6 +61,9 @@ int main() {
 
 	//run the python code
 	system("python3 ../python/rand_walk.py");
+
+	//delete file
+	system("rm rand_pts.txt");
 
 	return 0;
 }
