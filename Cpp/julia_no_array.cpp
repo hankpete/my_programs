@@ -10,9 +10,7 @@ int main()
 	int N;
 	cout << "Grid size, N: ";
 	cin >> N;
-	double L;
-       	cout << "Size of bounding box, L: ";
-	cin >> L;	
+	double L = 1.0;
 	double Ja;
 	cout << "Real part of complex constant, Ja: ";
 	cin >> Ja;
@@ -22,8 +20,7 @@ int main()
 
 	//begin file
 	ofstream file;
-	file.open("A_julia.txt");
-	file << "N = " << N << "\n";
+	file.open("julia_data.txt");
 
 	int diverge = 1000;
 	int converge = 200;
@@ -59,12 +56,24 @@ int main()
 
 				if (r > diverge)
 				{
-					file << c << "\n";
+					file << c;
+					if (j < N - 1) 
+					{
+						file << ", ";
+					} else {
+						file << "\n";
+					}
 					break;
 				}
 				if (c == converge-1) 
 				{
-					file << 0 << "\n";
+					file << 0;
+					if (j < N - 1) 
+					{
+						file << ", ";
+					} else {
+						file << "\n";
+					}
 					break;
 				}
 			}	
@@ -77,7 +86,7 @@ int main()
 	system("python3 ../python/julia.py");
 
 	//delete file
-	system("rm A_julia.txt");
+	system("rm julia_data.txt");
 
 	return 0;
 }

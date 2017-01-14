@@ -81,19 +81,26 @@ int main() {
 
 	int iL,iR,jD,jU;
 	int new_x, new_y;
+
+	//ask for visual
+	char visual;
+	cout << "Do you want a terminal visual displayed (y or n)? ";
+	cin >> visual;
 	for (n = 0; n < loops; n++) {
 		//visual
-		cout << "Loop number:" << n << "\n";
-        	for (g = 0; g < N; g++) {
-        	    for (h = 0; h < N; h++) {
-			if (A[g][h] == 0) {
-				cout << ". ";
-			} else {
-				cout << "O ";
-			}
-		    }
-        	    cout << "\n";
-        	}
+		if (visual == 'y') {
+			cout << "Loop number:" << n << "\n";
+        		for (g = 0; g < N; g++) {
+        		    for (h = 0; h < N; h++) {
+				if (A[g][h] == 0) {
+					cout << ". ";
+				} else {
+					cout << "O ";
+				}
+			    }
+        		    cout << "\n";
+        		}
+		}
 		//break if reached edge
 		if (i == 0 || j == 0 || i == N - 1 || j == N - 1) {
 			break;
@@ -128,21 +135,26 @@ int main() {
 		}
 	}
 
-	/*
 	ofstream file;
 	file.open("dla_grid.txt");
 	for (i = 0; i < N; i++) {
 		for (j = 0; j < N; j++) {
-			file << A[i][j] << " ";
+			file << A[i][j];
+			if (j < N - 1) {
+				file << ", ";
+			} else {
+				file << "\n";
+			}
 		}
-		file << "\n";
 	}
 	file.close();
-    */
 
 
 	//run the python code
-	//system("python3 ../python/dla_center.py");
+	system("python3 ../python/dla_center.py");
+
+	//delete file
+	system("rm dla_grid.txt");
 
 
 	return 0;

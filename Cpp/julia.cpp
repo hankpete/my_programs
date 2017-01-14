@@ -10,9 +10,7 @@ int main()
 	int N;
 	cout << "Array size, N: ";
 	cin >> N;
-	double L;
-       	cout << "Size of bounding box, L: ";
-	cin >> L;	
+	double L = 1.0;
 	double Ja;
 	cout << "Real part of complex constant, Ja: ";
 	cin >> Ja;
@@ -68,11 +66,19 @@ int main()
 	
 	//write A to file
 	ofstream file;
-	file.open("A_julia.txt");
-	file << "N = " << N << "\n";
-	for (int i = 0; i < N*N; i++)
+	file.open("julia_data.txt");
+	for (int i = 0; i < N; i++)
 	{
-		file << A[i] << "\n";
+		for (int j = 0; j < N; j++)
+		{
+			file << A[i*N + j];
+			if (j < N - 1)
+			{
+				file << ", ";
+			} else {
+				file << "\n";
+			}
+		}
 	}
 	file.close();
 
@@ -83,7 +89,7 @@ int main()
 	system("python3 ../python/julia.py");
 
 	//delete file
-	system("rm A_julia.txt");
+	system("rm julia_data.txt");
 
 	return 0;
 }
