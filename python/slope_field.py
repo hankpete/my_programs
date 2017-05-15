@@ -12,7 +12,7 @@ NUM = 30
 # def F(x, y):
 #         # dy/dx = F(x, y)
 #         return (np.sqrt(np.abs(x))+ y/2)
-F = lambda x,y: np.sin(x*y)
+F = lambda x,y:  x
 
 def get_y_line(x, y1, x1, m):
         # y - y1 = m(x - x1)
