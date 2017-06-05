@@ -1,6 +1,5 @@
 //an example of using classes
-#include <iostream>
-using namespace std;
+#include <iostream> using namespace std;
 
 class Calculator {
 	private:
