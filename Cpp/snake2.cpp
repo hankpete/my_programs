@@ -13,12 +13,23 @@ class Board {
         char dir = 'w'; //direction of snake movement (WASD)
         int sx[100] = {-1};    //snake segments coords
         int sy[100] = {-1};
-        int dt = 300;
+        int dt;  //speed
     public:
         int cont = 1;   //continue game
         Board() {
             //start curses mode
             initscr();
+            //colors on?
+            if (has_colors() == FALSE) {
+                endwin();
+                cout << "Your terminal does not support color\n";
+                cont = 0;
+            }
+            //use colors
+            start_color();
+            init_pair(1, COLOR_GREEN, COLOR_BLACK); //snake
+            init_pair(2, COLOR_RED, COLOR_BLACK); //mouse
+            //input
             cbreak();   //no need to press enter
             noecho();   //don't show keys typed
             //start head of snake somewhere
@@ -28,8 +39,30 @@ class Board {
             } else {
                 sy[0] = rand() % n;
             }
+            get_speed();
         }
+        void get_speed() {
+            clear();
+            printw("\nHow fast?");
+            printw("\n    1 - Snail\n    2 - Worm\n    3 - Snake\n    4 - JEDI\n");
+            refresh();
+            char c = getch();
+            switch (c) {
+                case '1':
+                    dt = 1000;
+                case '2':
+                    dt = 500;
+                case '3':
+                    dt = 250;
+                case '4':
+                    dt = 75;
+                default:
+                    c = getch();
+            }
+        }
+                
         int is_snake(int x, int y) {
+            //quick utility for checking if a square has tail
             for (int i = 0; i < tail + 1; i++) {
                 if (sx[i] == x && sy[i] == y) {
                     return 1;
@@ -40,26 +73,29 @@ class Board {
         void show() {
             clear();    //remove old board
             //loop through x and y. (0,0) is top left
-            string line;
+            string text = "    SCORE: " + to_string(tail) + "\n\n"; 
+            printw( text.c_str() );
             for (int y = 0; y < n; y++) {
-                line = "";
                 for (int x = 0; x < n; x++) {
                     if (x == mx && y == my) {
-                        line += "x";
+                        attron(COLOR_PAIR(2));
+                        printw("o");
+                        attroff(COLOR_PAIR(2));
                     } else if (is_snake(x,y)) {
+                        attron(COLOR_PAIR(1));
                         if (x == sx[0] && y == sy[0]) {
-                            line += "O";
+                            printw("X");
                         } else{
-                            line += "o";
+                            printw("x");
                         }
+                        attroff(COLOR_PAIR(1));
                     } else {
-                        line += ".";
+                        printw(".");
                     }
                     //add some space to make it a square board
-                    line += " ";
+                    printw(" ");
                 }
-                line += "\n";
-                printw(line.c_str() );
+                printw("\n");
             }
             //print it to the real screen
             refresh();
@@ -123,19 +159,31 @@ class Board {
             }
         }
         void end_game() {
-            printw("\nGAME OVER\n");
+            attron(COLOR_PAIR(2));
+            printw("\nGAME OVER");
+            attroff(COLOR_PAIR(2));
+            printw("\n\n(q to quit)");
             refresh();
             timeout(-1);  //indef
-            getch();
+            char c = getch();
+            while (c != 'q') {
+                c = getch();
+            }
             //end curses mode 
             endwin();	
             cont = 0;
         }
         void win_game() {
-            printw("\nYOU WIN\n");
+            attron(COLOR_PAIR(1));
+            printw("\nYOU WIN");
+            attroff(COLOR_PAIR(1));
+            printw("\n\n(q to quit)");
             refresh();
             timeout(-1); //indef
-            getch();
+            char c = getch();
+            while (c != 'q') {
+                c = getch();
+            }
             //end curses mode 
             endwin();	
             cont = 0;
