@@ -3,6 +3,7 @@
 #include <string>
 #include <unistd.h>  //sleep
 #include <time.h>
+#include <fstream>
 using namespace std;
 
 class Board {
@@ -12,10 +13,10 @@ class Board {
         int tail = 0;   //length of tail
         int mx = rand() % (n-2) + 1;     //mouse x
         int my = rand() % (n-2) + 1;     //mouse y
-        char dir; //direction of snake movement
+        char dir = 'p'; //direction of snake movement (paused)
         int sx[(n-2)*(n-2)] = {-1};    //snake segments coords
         int sy[(n-2)*(n-2)] = {-1};
-        int dt;  //speed
+        char speed;
         int start = 1;  //has the game just started
     public:
         int cont = 1;   //continue game
@@ -30,6 +31,7 @@ class Board {
             cbreak();   //no need to press enter
             noecho();   //don't show keys typed
             keypad(stdscr, TRUE);  //special keys
+
             //start head of snake somewhere
             sx[0] = rand() % (n-2) + 1;
             if (sx[0] == mx) {
@@ -37,35 +39,23 @@ class Board {
             } else {
                 sy[0] = rand() % (n-2) + 1;
             }
-            //make good dir
-            if (sx[0] > n / 2) {
-                dir = 'w';
-            } else {
-                dir = 'e';
-            }
 
             get_speed();
         }
         void get_speed() {
             clear();
+            echo();
+            printw("\nWELCOME TO SNEK GAME\n");
             printw("\nHow fast?");
-            printw("\n    1 - Snail\n    2 - Worm\n    3 - Snake\n    4 - JEDI\n");
-            refresh();
+            printw("\n    1 - snail\n    2 - snek\n    3 - heckin fast snek\nEnter Choice: ");
             char c = getch();
-            while (c != '1' && c != '2' && c != '3' && c != '4') {
+            while (c != '1' && c != '2' && c != '3') {
                 c = getch();
             }
-            if (c == '1') {
-                dt = 550;
-            } else if (c == '2') {
-                dt = 350;
-            } else if (c == '3') {
-                dt = 150;
-            } else {
-                dt = 50;
-            }
+            getch();
+            speed = c;
+            noecho();
         }
-                
         int is_snake(int x, int y) {
             //quick utility for checking if a square has tail
             for (int i = 0; i < tail + 1; i++) {
@@ -105,35 +95,34 @@ class Board {
                 printw("\n");
                 curs_set(0); // hide cursor
             }
-            //print it to the real screen
-            refresh();
-            //slower beginning
+            //instructions
             if (start == 1) {
-                start = 0;
-                printw("\n3..");
-                refresh();
-                sleep(1);
-                printw("2..");
-                refresh();
-                sleep(1);
-                printw("1..");
-                refresh();
-                sleep(1);
-                printw("GO!");
-                refresh();
+                printw("\nUse arrow keys to move.");
             }
         }
         void ask_dir() {
+            int dt;
+            if (speed == '1') {
+                dt = 200;
+            } else if (speed == '2') {
+                dt = 150;
+            } else if (speed == '3') {
+                dt = 50;
+            }
             timeout(dt);  //it moves!
             int new_dir = getch();
-            if (new_dir == KEY_UP) {
+            if (new_dir == KEY_UP && dir != 's') {
                 dir = 'n';
-            } else if (new_dir == KEY_DOWN) {
+                start = 0;
+            } else if (new_dir == KEY_DOWN && dir != 'n') {
                 dir = 's';
-            } else if (new_dir == KEY_LEFT) {
+                start = 0;
+            } else if (new_dir == KEY_LEFT && dir != 'e') {
                 dir = 'w';
-            } else if (new_dir == KEY_RIGHT) {
+                start = 0;
+            } else if (new_dir == KEY_RIGHT && dir != 'w') {
                 dir = 'e';
+                start = 0;
             }
         }
         void move() {
@@ -146,6 +135,9 @@ class Board {
                 dx = 0; dy = 1;
             } else if (dir == 'e') {
                 dx = 1; dy = 0;
+            } else {
+                //paused at beginning
+                return;
             }
             //change all but head of snake to one ahead
             for (int i = tail + 1; i > 0; i--) {
@@ -168,7 +160,7 @@ class Board {
             if (sx[0] == mx && sy[0] == my) {
                 tail++;
                 if (tail + 1 == n * n) {
-                    win_game();
+                    end_game();
                 } else {
                     int r = rand() % ((n-2)*(n-2) - tail - 1);  //a number between 0 and the spaces left
                     int count = 0;
@@ -191,31 +183,65 @@ class Board {
             attron(COLOR_PAIR(2));
             printw("\nGAME OVER");
             attroff(COLOR_PAIR(2));
-            printw("\n\n('q' to quit)");
-            refresh();
-            timeout(-1);  //indef
-            char c = getch();
-            while (c != 'q') {
-                c = getch();
-            }
-            //end curses mode 
-            endwin();	
-            cont = 0;
+            cont = 0; //end game
+            high_score();
         }
-        void win_game() {
-            attron(COLOR_PAIR(1));
-            printw("\nYOU WIN");
-            attroff(COLOR_PAIR(1));
-            printw("\n\n('q' to quit)");
-            refresh();
-            timeout(-1); //indef
-            char c = getch();
-            while (c != 'q') {
-                c = getch();
+        void high_score() {
+            timeout(-1);  //indef
+
+            echo();
+            printw("\n\nSave Score");
+            printw("\nName: ");
+            char name[80];
+            getstr(name);
+
+            clear();
+
+            ifstream file;
+            file.open("snake_scores.dat");
+            string line, newfile;
+            while (getline(file, line)) {
+                newfile += line + "\n";
+                if (line.substr(0, 5) == "Speed" && line[6] == speed) {
+                    int recorded = 0;
+                    while (recorded < 3) {
+                        getline(file, line);
+                        //get what the score was
+                        int i = 0;
+                        string s;
+                        while (line[i] != ' ') {
+                            i++;
+                        }
+                        i++;
+                        while (isdigit(line[i])) {
+                            s += line[i];
+                            i++;
+                        }
+                        //add if new score is higher
+                        if (tail > stoi(s)) {
+                            newfile += string(name) + " ";
+                            newfile += to_string(tail);
+                            newfile += "\n";
+                            recorded++;
+                            break;
+                        } else {
+                            newfile += line + "\n";
+                            recorded++;
+                        }
+                    }
+                }
             }
-            //end curses mode 
-            endwin();	
-            cont = 0;
+            file.close();
+            ofstream file2;
+            file2.open("snake_scores.dat");
+            file2 << newfile;
+            file2.close();
+
+            clear();
+            printw(newfile.c_str());
+            getch();
+
+            endwin();  //end ncurses session
         }
 };
 
@@ -228,6 +254,7 @@ int main() {
         brd.ask_dir();
         brd.move();
     }
+    
    
     return 0;
 }
