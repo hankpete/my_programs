@@ -134,6 +134,7 @@ for team in teams:
 import numpy as np
 
 results = []
+print("\nPredictions:")
 while len(teams) != 0:
     team = teams[0]
     opp = team_schedule[team][week]
@@ -149,6 +150,7 @@ while len(teams) != 0:
     #score convention, away vs home
     away_pts = np.average( [ team_data[home]["PA"], team_data[away]["PF"] ] )
     home_pts = np.average( [ team_data[home]["PF"], team_data[away]["PA"] ] )
+    print("{}: {} @ {}: {}".format(away, int(away_pts), home, int(home_pts)))
     diff = home_pts - away_pts
     if diff >= 0:
         winner = home
@@ -173,78 +175,122 @@ while bet > 0:
     results[i]["Bet"] = str(bet)
     bet -= 1
 
-#repopulate teams
-teams = ["ARI","ATL","BAL","BUF","CAR","CHI","CIN","CLE",
-         "DAL","DEN","DET","GB","HOU","IND","JAC","KC",
-         "MIA","MIN","NE","NO","NYG","NYJ","OAK","PHI",
-         "PIT","LAC","SEA","SF","LAR","TB","TEN","WAS"]
+#read website to get schedule times
+#make latex pdf
 
+#map teams
+teams = {"ARI":"Cardinals","ATL":"Falcons","BAL":"Ravens","BUF":"Bills","CAR":"Panthers","CHI":"Bears","CIN":"Bengals","CLE":"Browns",
+         "DAL":"Cowboys","DEN":"Broncos","DET":"Lions","GB":"Packers","HOU":"Texans","IND":"Cults","JAC":"Jaguars","KC":"Chiefs",
+         "MIA":"Dolphins","MIN":"Vikings","NE":"Patriots","NO":"Saints","NYG":"Giants","NYJ":"Jets","OAK":"Raiders","PHI":"Eagles",
+         "PIT":"Steelers","LAC":"Chargers","SEA":"Seahawks","SF":"49ers","LAR":"Rams","TB":"Buccaneers","TEN":"Titans","WAS":"Redskins"}
 
+#%%
+import urllib.request
+import os
+
+#%%
+year = "2017"
+site = "http://www.thehuddle.com/" + year + "/nfl/nfl-schedule-wk-txt.php"
+
+with urllib.request.urlopen(site) as response:
+   html = response.read()
+
+#it comes as character codes. turn into letters
+html_str = ""
+for i in html:
+    html_str += str(chr(i))
+#get rid of annoying things now
+html_str = html_str.replace("&nbsp","")
+html_str = html_str.replace("<br>","")
 
 
 #%%
-#make a document to send to mom
-#show me the doc
-#ask if it is good
-#send email to mom if good
-import os
+#find the part in the html with tables of schedules
+#add just those to a text string 
 
-filename = "/home/hpeter/Documents/Football/picks_week{}.tex".format(week)
+days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
+
+text = ""
+i = 0
+while True:
+    if html_str[i:i+6] == "Week "+str(week) or html_str[i:i+7] == "Week "+str(week):
+        #our week
+        j = i + 5
+        while html_str[j] != "<":
+            j += 1
+        text += "\n\\section*{\\LARGE Football Picks " + year + ": " + html_str[i:j] + "}"
+        text += "\n{\\large Hank Bot} \\par"
+        text += "\n\\setlength{\\tabcolsep}{2em}"
+        text += "\n{\\renewcommand{\\arraystretch}{2}"
+        text += "\n\\begin{tabular}{ l l }"
+
+        i = j
+        
+        game_count = 0
+        while html_str[i:i+6] != "Week "+str(week + 1) and html_str[i:i+7] != "Week "+str(week + 1) and i < len(html_str):
+            if html_str[i:i+4] == "<td>":
+                #new element of list (matchup, time, day)
+                j = i + 4
+                while html_str[j] != "<":   
+                    #go until content done
+                    j += 1
+                content = html_str[i+4:j]
+                for day in days:
+                    if day in content: 
+                        #new day, make title
+                        text += "\n\\textbf{" + content + "} \\\ "
+
+                if " at " in content:
+                    #new matchup
+                    game_count += 1
+                    for r in results:
+                        if teams[ r["Winner"] ] in content:
+                            if r["Winner"] == r["Home"]:
+                                text +=  "\n" + teams[ r["Away"] ] + " @ $\\boxed{ \\text{" + teams[ r["Home"] ] + "} }$ & " + r["Bet"] + " \\\ "
+                            else:
+                                text +=  "\n$\\boxed{ \\text{" + teams[ r["Away"] ] + "} }$ @ " + teams[ r["Home"] ] + " & " + r["Bet"] + " \\\ "
+                    if game_count > 15:
+                        text += "\n\\end{tabular}}"
+
+                elif "Byes" in html_str[i+4:j]:
+                    #put the byes at the bottom
+                    text += "\n\\end{tabular}}"
+                    text += "\n\\vfill{}"
+                    text += "\n" + content.replace(";", " ").replace(",", ", ")
+            i += 1
+        break
+
+    else:
+        i += 1
+
+                
+#put it all in a tex file
+Dir = "/home/hpeter/Documents/Football/"
+filename = "{}picks_week{}.tex".format(Dir, week)
 with open(filename,"w") as f:
     f.write(
 """
 \\documentclass[12pt, letterpaper]{article}
 \\usepackage[margin=0.9in]{geometry}
 \\usepackage[scaled]{helvet}
-\\usepackage{amsmath}
 \\renewcommand\\familydefault{\\sfdefault} 
 \\usepackage[T1]{fontenc}
+\\usepackage{amsmath}
 \\pagestyle{empty}
-\\setlength{\parindent}{1em}
-\\setlength{\parskip}{1.5em}
 
 \\begin{document}
+\\setlength{\parindent}{0.5em}
+\\setlength{\parskip}{1.4em}
 """
     )
-    f.write("{\\LARGE Football Picks Week " + str(week) + "} \\par\n")
-    f.write("{\\large Henry Peterson } \\par\n")
-    #colomn spacing
-    f.write("\\setlength{\\tabcolsep}{2em}\n")
-    #row spacing
-    f.write("{\\renewcommand{\\arraystretch}{2}\n")
-    #put picks in table
-    f.write("\\begin{tabular}{ l l }\n")
-    bet = len(results)
-    while bet > 0:
-        for r in results:
-            if r["Bet"] == str(bet):
-                #box the winner and put match/bet in separate columns
-                if r["Winner"] == r["Home"]:
-                    f.write(r["Away"] + " @ $\\boxed{ \\text{" + r["Home"] + \
-                          "} }$ & " + r["Bet"] + " \\\ \n")
-                else:
-                    f.write("$\\boxed{ \\text{" + r["Away"] + "} }$ @ " + \
-                            r["Home"] + " & " + r["Bet"] + " \\\ \n")
-                continue
-        bet -= 1
-    #end (don't forget row spacing end)
-    f.write("\\end{tabular}}\n")
-    f.write("\\end{document}\n")
+    f.write(text)
+    f.write("\n\\end{document}\n")
 
-
-os.system("pdflatex -output-directory /home/hpeter/Documents/Football/ {} >> pdflatex.out".format(filename))
+#%%
+#make it
+os.system("pdflatex -output-directory {} {} >> pdflatex.out".format(Dir, filename))
 print("\nMy picks: {}".format(filename))
-os.system("xdg-open /home/hpeter/Documents/Football/picks_week{}.pdf > /dev/null 2>&1".format(week))
+os.system("xdg-open {}picks_week{}.pdf > /dev/null 2>&1".format(Dir, week))
 
-os.system("/home/hpeter/Documents/Football/football_picks_random.py {}".format(week))
-#R = input("Send to family (y/n)?: ")
-#if R.lower() == "y":
-#    to = "cptrsn@comcast.net"
-#    cc = "slptrsn@gmail.com,stv.ptrsn9@gmail.com"
-#    subject = "Picks Week " + str(week)
-#    body = "Here are my picks.\n\nHP"
-#    attachment = "/home/hpeter/Documents/Football/picks_week" + str(week) + ".pdf"
-#    
-#    os.system("thunderbird -compose \"to='{}',cc='{}',subject='{}',body='{}',attachment='{}'\"".format(to,cc,subject,body,attachment))
-#else:
-#    print("Exiting Now.")
+os.system("{}random_bot.py {}".format(Dir, week))
+

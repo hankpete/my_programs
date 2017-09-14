@@ -8,6 +8,7 @@
 #%%
 import urllib.request
 import sys
+import random
 
 try:
     week = int(sys.argv[1])
@@ -134,6 +135,12 @@ for team in teams:
 import numpy as np
 
 results = []
+byes = 0
+for team in teams:
+    if team_schedule[team][week] == "BYE":
+        byes += 1
+byes = int(byes / 2)
+bets = list(range(1, 17 - byes))
 while len(teams) != 0:
     team = teams[0]
     opp = team_schedule[team][week]
@@ -146,32 +153,17 @@ while len(teams) != 0:
     else:
         home = team
         away = opp
-    #score convention, away vs home
-    away_pts = np.average( [ team_data[home]["PA"], team_data[away]["PF"] ] )
-    home_pts = np.average( [ team_data[home]["PF"], team_data[away]["PA"] ] )
-    diff = home_pts - away_pts
-    if diff >= 0:
+    #randomized
+    r = random.randint(0,1)
+    if r == 0:
         winner = home
-    else:
+    elif r == 1:
         winner = away
-    results.append( {"Home" : home, "Away" : away, "Diff" : diff, \
-                     "Winner" : winner, "Bet" : 0} )
+    bet = bets [ random.randint(0, len(bets) - 1) ]
+    bets.remove(bet)
+    results.append( {"Home" : home, "Away" : away, "Winner" : winner, "Bet" : str(bet)} )
     teams.remove(home)
     teams.remove(away)
-
-bet = len(results)
-while bet > 0:
-    #look for the biggest difference not yet used
-    biggest = 0
-    for j in range(len(results)):
-        if results[j]["Bet"] != 0:
-            #already bet on
-            continue
-        if np.abs(results[j]["Diff"]) >= biggest:
-            biggest = np.abs(results[j]["Diff"])
-            i = j
-    results[i]["Bet"] = str(bet)
-    bet -= 1
 
 #repopulate teams
 teams = ["ARI","ATL","BAL","BUF","CAR","CHI","CIN","CLE",
@@ -189,7 +181,7 @@ teams = ["ARI","ATL","BAL","BUF","CAR","CHI","CIN","CLE",
 #send email to mom if good
 import os
 
-filename = "/home/hpeter/Documents/Football/picks_week{}.tex".format(week)
+filename = "/home/hpeter/Documents/Football/picks_week{}_random.tex".format(week)
 with open(filename,"w") as f:
     f.write(
 """
@@ -207,7 +199,7 @@ with open(filename,"w") as f:
 """
     )
     f.write("{\\LARGE Football Picks Week " + str(week) + "} \\par\n")
-    f.write("{\\large Henry Peterson } \\par\n")
+    f.write("{\\large RANDOM BOT 3000} \\par\n")
     #colomn spacing
     f.write("\\setlength{\\tabcolsep}{2em}\n")
     #row spacing
@@ -227,24 +219,25 @@ with open(filename,"w") as f:
                             r["Home"] + " & " + r["Bet"] + " \\\ \n")
                 continue
         bet -= 1
+
     #end (don't forget row spacing end)
     f.write("\\end{tabular}}\n")
     f.write("\\end{document}\n")
 
 
 os.system("pdflatex -output-directory /home/hpeter/Documents/Football/ {} >> pdflatex.out".format(filename))
-print("\nMy picks: {}".format(filename))
-os.system("xdg-open /home/hpeter/Documents/Football/picks_week{}.pdf > /dev/null 2>&1".format(week))
+print("\nRandom picks: {}".format(filename))
+os.system("xdg-open /home/hpeter/Documents/Football/picks_week{}_random.pdf > /dev/null 2>&1".format(week))
 
-os.system("/home/hpeter/Documents/Football/football_picks_random.py {}".format(week))
-#R = input("Send to family (y/n)?: ")
-#if R.lower() == "y":
-#    to = "cptrsn@comcast.net"
-#    cc = "slptrsn@gmail.com,stv.ptrsn9@gmail.com"
-#    subject = "Picks Week " + str(week)
-#    body = "Here are my picks.\n\nHP"
-#    attachment = "/home/hpeter/Documents/Football/picks_week" + str(week) + ".pdf"
-#    
-#    os.system("thunderbird -compose \"to='{}',cc='{}',subject='{}',body='{}',attachment='{}'\"".format(to,cc,subject,body,attachment))
-#else:
-#    print("Exiting Now.")
+R = input("\nSend to family (y/n)?: ")
+if R.lower() == "y":
+    to = "cptrsn@comcast.net"
+    cc = "slptrsn@gmail.com,stv.ptrsn9@gmail.com"
+    subject = "Picks Week " + str(week)
+    body = "Here are my picks.\n\nHP"
+    attachment = "/home/hpeter/Documents/Football/picks_week" + str(week) + "_random.pdf,"
+    attachment += "/home/hpeter/Documents/Football/picks_week" + str(week) + ".pdf"
+    
+    os.system("thunderbird -compose \"to='{}',cc='{}',subject='{}',body='{}',attachment='{}'\"".format(to,cc,subject,body,attachment))
+else:
+    print("Exiting Now.")
